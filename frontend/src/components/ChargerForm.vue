@@ -88,8 +88,10 @@ const loading = ref(false)
 const error = ref('')
 const token = localStorage.getItem('token')
 
-// ✅ Use your deployed backend URL from .env
-const API = import.meta.env.VITE_API_URL
+// Backend base URL from env, fallback to localhost without trailing slash
+const API_BASE_RAW = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+// Append /api consistently
+const API_BASE_URL = API_BASE_RAW.endsWith('/') ? API_BASE_RAW + 'api' : API_BASE_RAW + '/api'
 
 watch(
   () => props.charger,
@@ -116,12 +118,12 @@ async function submit() {
   try {
     if (form.value.id) {
       // 🔄 Update charger
-      await axios.put(`${API}/api/chargers/${form.value.id}`, form.value, {
+      await axios.put(`${API_BASE_URL}/chargers/${form.value.id}`, form.value, {
         headers: { Authorization: `Bearer ${token}` }
       })
     } else {
       // ➕ Create charger
-      await axios.post(`${API}/api/chargers`, form.value, {
+      await axios.post(`${API_BASE_URL}/chargers`, form.value, {
         headers: { Authorization: `Bearer ${token}` }
       })
     }
