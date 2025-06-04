@@ -77,9 +77,10 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import axios from 'axios'
 import ChargerForm from '../components/ChargerForm.vue'
 
-const API_URL = 'http://localhost:5000/api/chargers'
-const token = localStorage.getItem('token')
+// API base URL from environment variable, fallback localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
+// Reactive states
 const chargers = ref([])
 const loading = ref(false)
 const error = ref('')
@@ -92,11 +93,13 @@ const filters = reactive({
   powerOutput: ''
 })
 
+// Fetch chargers with latest token each time
 const fetchChargers = async () => {
   loading.value = true
   error.value = ''
+  const token = localStorage.getItem('token')
   try {
-    const res = await axios.get(API_URL, {
+    const res = await axios.get(`${API_BASE_URL}/chargers`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     chargers.value = res.data
@@ -125,8 +128,9 @@ function editCharger(charger) {
 async function deleteCharger(id) {
   if (!confirm('Are you sure you want to delete this charger?')) return
 
+  const token = localStorage.getItem('token')
   try {
-    await axios.delete(`${API_URL}/${id}`, {
+    await axios.delete(`${API_BASE_URL}/chargers/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     fetchChargers()
