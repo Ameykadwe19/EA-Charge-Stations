@@ -44,7 +44,7 @@ module.exports = (sequelize) => {
     UserId: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'User',
+        model: 'Users',
         key: 'id'
       },
       onDelete: 'SET NULL',
