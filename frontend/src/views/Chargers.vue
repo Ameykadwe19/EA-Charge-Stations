@@ -78,7 +78,9 @@ import axios from 'axios'
 import ChargerForm from '../components/ChargerForm.vue'
 
 // API base URL from environment variable, fallback localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_BASE_URL_RAW = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_BASE_URL = API_BASE_URL_RAW.endsWith('/') ? API_BASE_URL_RAW + 'api' : API_BASE_URL_RAW + '/api'
+
 
 // Reactive states
 const chargers = ref([])
