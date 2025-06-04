@@ -147,6 +147,9 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { Modal } from 'bootstrap'
 
+// ✅ Use your deployed backend base URL
+const API = import.meta.env.VITE_API_URL
+
 const chargers = ref([])
 const filters = ref({
   status: '',
@@ -167,7 +170,7 @@ let modal = null
 // Fetch chargers
 const fetchChargers = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/chargers', {
+    const response = await axios.get(`${API}/api/chargers`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
     chargers.value = response.data
@@ -221,7 +224,7 @@ const editCharger = (charger) => {
 
 const saveCharger = async () => {
   try {
-    const url = `http://localhost:5000/api/chargers${editingCharger.value ? `/${editingCharger.value.id}` : ''}`
+    const url = `${API}/api/chargers${editingCharger.value ? `/${editingCharger.value.id}` : ''}`
     const method = editingCharger.value ? 'put' : 'post'
     
     await axios[method](url, chargerForm.value, {
@@ -239,7 +242,7 @@ const deleteCharger = async (id) => {
   if (!confirm('Are you sure you want to delete this charger?')) return
   
   try {
-    await axios.delete(`http://localhost:5000/api/chargers/${id}`, {
+    await axios.delete(`${API}/api/chargers/${id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
     await fetchChargers()
