@@ -229,7 +229,7 @@ const fetchChargers = async () => {
   
   try {
     console.log('Fetching chargers...')
-    const response = await axios.get('http://localhost:5000/api/chargers', {
+    const response = await axios.get('${import.meta.env.VITE_API_URL}/chargers', {
       headers: { 
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
