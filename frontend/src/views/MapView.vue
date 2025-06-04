@@ -75,9 +75,9 @@ let markers = {}
 const initMap = () => {
   map = L.map('map').setView([18.5204, 73.8567], 13)
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> & CartoDB',
+}).addTo(map)
 }
 
 const selectStation = (station) => {
