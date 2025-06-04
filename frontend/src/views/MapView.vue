@@ -53,7 +53,8 @@ import L from 'leaflet'
 import axios from 'axios'
 
 const token = localStorage.getItem('token')
-const API_URL = import.meta.env.VITE_API_URL + '/chargers'
+  
+const API_URL = import.meta.env.VITE_API_URL + '/api/chargers'
 
 const stations = ref([])
 const loading = ref(true)
