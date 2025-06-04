@@ -12,11 +12,15 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/chargers', require('./routes/chargerRoutes'));
 
+
+const PORT = process.env.PORT || 5000;
+
+
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   await sequelize.sync(); // Sync DB
