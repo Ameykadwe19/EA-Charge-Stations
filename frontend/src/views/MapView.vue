@@ -82,11 +82,16 @@ const initMap = () => {
 
 const selectStation = (station) => {
   selectedStation.value = station
-  if (markers[station.id]) {
-    markers[station.id].openPopup()
-    map.setView([station.latitude, station.longitude], 15)
-  }
+
+  requestAnimationFrame(() => {
+    if (markers[station.id]) {
+      markers[station.id].openPopup()
+      map.setView([station.latitude, station.longitude], 15)
+      map.invalidateSize() // 🔥 fixes layout blank issue
+    }
+  })
 }
+
 
 onMounted(async () => {
   initMap()
