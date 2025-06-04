@@ -222,6 +222,8 @@ const chargerForm = ref({
   status: 'active'
 })
 
+const API_URL = import.meta.env.VITE_API_URL
+
 // Fetch chargers
 const fetchChargers = async () => {
   loading.value = true
@@ -229,7 +231,7 @@ const fetchChargers = async () => {
   
   try {
     console.log('Fetching chargers...')
-    const response = await axios.get('${import.meta.env.VITE_API_URL}/chargers', {
+    const response = await axios.get(`${API_URL}/chargers`, {
       headers: { 
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -337,7 +339,7 @@ const saveCharger = async () => {
   saving.value = true
   try {
     console.log('Saving charger:', chargerForm.value)
-    const url = `http://localhost:5000/api/chargers${editingCharger.value ? `/${editingCharger.value.id}` : ''}`
+    const url = `${API_URL}/chargers${editingCharger.value ? `/${editingCharger.value.id}` : ''}`
     const method = editingCharger.value ? 'put' : 'post'
     
     const response = await axios[method](url, chargerForm.value, {
@@ -368,7 +370,7 @@ const confirmDelete = async (charger) => {
   if (!confirm(`Are you sure you want to delete ${charger.name}?`)) return
   
   try {
-    await axios.delete(`http://localhost:5000/api/chargers/${charger.id}`, {
+    await axios.delete(`${API_URL}/chargers/${charger.id}`, {
       headers: { 
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
