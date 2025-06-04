@@ -65,9 +65,8 @@
     <div v-if="error" class="alert alert-danger mt-2">{{ error }}</div>
   </div>
 </template>
-
 <script setup>
-import { ref, watch, toRefs } from 'vue'
+import { ref, watch } from 'vue'
 import axios from 'axios'
 
 const props = defineProps({
@@ -88,6 +87,9 @@ const form = ref({
 const loading = ref(false)
 const error = ref('')
 const token = localStorage.getItem('token')
+
+// ✅ Use your deployed backend URL from .env
+const API = import.meta.env.VITE_API_URL
 
 watch(
   () => props.charger,
@@ -113,13 +115,13 @@ async function submit() {
   error.value = ''
   try {
     if (form.value.id) {
-      // Update existing
-      await axios.put(`http://localhost:5000/api/chargers/${form.value.id}`, form.value, {
+      // 🔄 Update charger
+      await axios.put(`${API}/api/chargers/${form.value.id}`, form.value, {
         headers: { Authorization: `Bearer ${token}` }
       })
     } else {
-      // Create new
-      await axios.post(`http://localhost:5000/api/chargers`, form.value, {
+      // ➕ Create charger
+      await axios.post(`${API}/api/chargers`, form.value, {
         headers: { Authorization: `Bearer ${token}` }
       })
     }
