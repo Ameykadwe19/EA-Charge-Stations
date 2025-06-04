@@ -52,8 +52,17 @@ import { onMounted, ref } from 'vue'
 import L from 'leaflet'
 import axios from 'axios'
 
+// 🔹 Import Leaflet CSS & fix marker icon URLs
+import 'leaflet/dist/leaflet.css'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow
+})
+
 const token = localStorage.getItem('token')
-  
 const API_URL = import.meta.env.VITE_API_URL + '/api/chargers'
 
 const stations = ref([])
@@ -63,7 +72,6 @@ const selectedStation = ref(null)
 let map
 let markers = {}
 
-// Initialize map
 const initMap = () => {
   map = L.map('map').setView([18.5204, 73.8567], 13)
 
@@ -87,20 +95,20 @@ onMounted(async () => {
     const res = await axios.get(API_URL, {
       headers: { Authorization: `Bearer ${token}` }
     })
-    
+
     stations.value = res.data
-    
+
     res.data.forEach(charger => {
       const marker = L.marker([charger.latitude, charger.longitude]).addTo(map)
       markers[charger.id] = marker
-      
+
       marker.bindPopup(`
         <b>${charger.name}</b><br/>
         Status: ${charger.status}<br/>
         Power: ${charger.powerOutput} kW<br/>
         Connector: ${charger.connectorType}
       `)
-      
+
       marker.on('click', () => {
         selectedStation.value = charger
       })
@@ -122,7 +130,7 @@ onMounted(async () => {
   display: flex;
   gap: 1rem;
   height: 600px;
-  margin-top: 1rem;
+  min-height: 600px;
 }
 
 .side-panel {
@@ -214,6 +222,8 @@ onMounted(async () => {
 
 #map {
   flex: 1;
+  height: 100%;
+  min-height: 100%;
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
