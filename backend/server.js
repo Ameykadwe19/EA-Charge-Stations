@@ -31,12 +31,13 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connected successfully');
 
-    
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+    // ⬇️ Add this line to create tables
+    await sequelize.sync({ alter: true });
 
-    
+    app.get('/', (req, res) => {
+      res.send('API is running...');
+    });
+
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
@@ -45,4 +46,4 @@ app.get('/', (req, res) => {
   }
 };
 
-startServer(); 
+startServer();
