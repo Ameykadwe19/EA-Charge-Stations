@@ -2,14 +2,14 @@
   <div>
     <h2>Charging Stations</h2>
 
-    <div class="d-flex gap-3 mb-3 flex-wrap">
-      <select v-model="filters.status" class="form-select" style="max-width: 150px;">
+    <div class="flex flex-wrap gap-3 mb-3">
+      <select v-model="filters.status" class="form-select w-full md:w-36">
         <option value="">All Status</option>
         <option value="Active">Active</option>
         <option value="Inactive">Inactive</option>
       </select>
 
-      <select v-model="filters.connectorType" class="form-select" style="max-width: 150px;">
+      <select v-model="filters.connectorType" class="form-select w-full md:w-36">
         <option value="">All Connectors</option>
         <option value="Type 1">Type 1</option>
         <option value="Type 2">Type 2</option>
