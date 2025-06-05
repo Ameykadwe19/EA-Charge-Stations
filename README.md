@@ -6,7 +6,7 @@
 
 ## 🌐 Live Demo
 
-🔗 [https://ea-charge-stations.vercel.app](https://ea-charge-stations.vercel.app)
+🔗 [https://ea-charge-stations-staticweb.onrender.com](https://ea-charge-stations-staticweb.onrender.com)
 
 ---
 
