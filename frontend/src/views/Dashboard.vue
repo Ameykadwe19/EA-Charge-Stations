@@ -3,7 +3,7 @@
     <h1>Dashboard</h1>
     
     <!-- Statistics Cards -->
-    <div class="dashboard-grid">
+    <div class="dashboard-grid grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="dashboard-card">
         <div class="dashboard-stat">24</div>
         <div class="dashboard-label">Total Charging Stations</div>
