@@ -1,317 +1,177 @@
 <template>
-  <div class="login-container">
-    <div class="login-card max-w-sm w-full mx-auto p-6 md:p-8">
-      <div class="login-header">
-        <img src="@/assets/logo.svg" alt="Logo" class="login-logo">
-        <h1>Welcome Back</h1>
-        <p>Sign in to manage your charging stations</p>
+  <div class="dashboard-container">
+    <h1>Dashboard</h1>
+    
+    <!-- Statistics Cards -->
+    <div class="dashboard-grid grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="dashboard-card">
+        <div class="dashboard-stat">24</div>
+        <div class="dashboard-label">Total Charging Stations</div>
       </div>
-
-      <form @submit.prevent="submitLogin" class="login-form">
-        <div class="form-group">
-          <label for="email">
-            <i class="fas fa-envelope"></i>
-            Email Address
-          </label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            :class="['form-input', { 'error': errors.email }]"
-            placeholder="Enter your email"
-            required
-            autocomplete="username"
-            @input="validateEmail"
-          />
-          <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
-        </div>
-
-        <div class="form-group">
-          <label for="password">
-            <i class="fas fa-lock"></i>
-            Password
-          </label>
-          <div class="password-input">
-            <input
-              id="password"
-              v-model="password"
-              :type="showPassword ? 'text' : 'password'"
-              :class="['form-input', { 'error': errors.password }]"
-              placeholder="Enter your password"
-              required
-              autocomplete="current-password"
-              @input="validatePassword"
-            />
-            <button 
-              type="button" 
-              class="toggle-password"
-              @click="showPassword = !showPassword"
-            >
-              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-            </button>
-          </div>
-          <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
-        </div>
-
-        <button 
-          type="submit" 
-          class="login-button" 
-          :disabled="loading || !isFormValid"
-        >
-          <span v-if="!loading">Sign In</span>
-          <div v-else class="spinner">
-            <i class="fas fa-circle-notch fa-spin"></i>
-          </div>
-        </button>
-
-        <div v-if="error" class="alert-error">
-          <i class="fas fa-exclamation-circle"></i>
-          {{ error }}
-        </div>
-      </form>
-
-      <div class="login-footer">
-        <p>Don't have an account? 
-          <router-link to="/register" class="register-link">
-            Register here
-          </router-link>
-        </p>
+      <div class="dashboard-card">
+        <div class="dashboard-stat">18</div>
+        <div class="dashboard-label">Active Stations</div>
       </div>
+      <div class="dashboard-card">
+        <div class="dashboard-stat">85%</div>
+        <div class="dashboard-label">Average Uptime</div>
+      </div>
+      <div class="dashboard-card">
+        <div class="dashboard-stat">156</div>
+        <div class="dashboard-label">Charges Today</div>
+      </div>
+    </div>
+
+    <!-- Charger Status Section -->
+    <h2 class="section-title">Charger Status</h2>
+    <div class="charger-grid">
+      <div v-for="charger in chargers" :key="charger.id" class="charger-card">
+        <div class="charger-status">
+          <span 
+            class="status-indicator" 
+            :class="{
+              'status-active': charger.status === 'active',
+              'status-inactive': charger.status === 'inactive',
+              'status-maintenance': charger.status === 'maintenance'
+            }"
+          ></span>
+          <span>{{ charger.status.charAt(0).toUpperCase() + charger.status.slice(1) }}</span>
+        </div>
+        <h3>{{ charger.name }}</h3>
+        <p>{{ charger.location }}</p>
+        <div class="charger-details">
+          <span>Power: {{ charger.power }}kW</span>
+          <span>Type: {{ charger.type }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <h2 class="section-title">Recent Activity</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Station</th>
+            <th>Event</th>
+            <th>Duration</th>
+            <th>Energy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="activity in recentActivity" :key="activity.id">
+            <td>{{ activity.time }}</td>
+            <td>{{ activity.station }}</td>
+            <td>{{ activity.event }}</td>
+            <td>{{ activity.duration }}</td>
+            <td>{{ activity.energy }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Connector Type Selection -->
+    <div class="mb-3">
+      <label>Connector Type</label>
+      <select v-model="form.connectorType" required class="form-select">
+        <option value="" disabled>Select connector</option>
+        <option value="Type 1">Type 1</option>
+        <option value="Type 2">Type 2</option>
+        <option value="CCS2">CCS2</option>
+        <option value="CHAdeMO">CHAdeMO</option>
+        <option value="GB/T">GB/T</option>
+        <option value="Ather">Ather</option>
+        <option value="Bharat AC-001">Bharat AC-001</option>
+        <option value="Bharat DC-001">Bharat DC-001</option>
+        <option value="Tesla">Tesla</option>
+      </select>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuth } from '../composables/useAuth'
+import { ref } from 'vue'
 
-const router = useRouter()
-const { login } = useAuth()
-
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
-const showPassword = ref(false)
-const errors = ref({
-  email: '',
-  password: ''
-})
-
-// Validation functions
-const validateEmail = () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!email.value) {
-    errors.value.email = 'Email is required'
-  } else if (!emailRegex.test(email.value)) {
-    errors.value.email = 'Please enter a valid email address'
-  } else {
-    errors.value.email = ''
+const chargers = ref([
+  {
+    id: 1,
+    name: 'Charger Station A1',
+    status: 'active',
+    location: 'Parking Level 1',
+    power: 50,
+    type: 'DC Fast Charging'
+  },
+  {
+    id: 2,
+    name: 'Charger Station A2',
+    status: 'inactive',
+    location: 'Parking Level 1',
+    power: 50,
+    type: 'DC Fast Charging'
+  },
+  {
+    id: 3,
+    name: 'Charger Station B1',
+    status: 'maintenance',
+    location: 'Parking Level 2',
+    power: 22,
+    type: 'AC Type 2'
+  },
+  {
+    id: 4,
+    name: 'Charger Station B2',
+    status: 'active',
+    location: 'Parking Level 2',
+    power: 22,
+    type: 'AC Type 2'
   }
-}
+])
 
-const validatePassword = () => {
-  if (!password.value) {
-    errors.value.password = 'Password is required'
-  } else if (password.value.length < 6) {
-    errors.value.password = 'Password must be at least 6 characters'
-  } else {
-    errors.value.password = ''
+const recentActivity = ref([
+  {
+    id: 1,
+    time: '10:30 AM',
+    station: 'Charger A1',
+    event: 'Charging Complete',
+    duration: '45 min',
+    energy: '35 kWh'
+  },
+  {
+    id: 2,
+    time: '09:15 AM',
+    station: 'Charger B2',
+    event: 'Charging Started',
+    duration: '30 min',
+    energy: '22 kWh'
+  },
+  {
+    id: 3,
+    time: '08:45 AM',
+    station: 'Charger A2',
+    event: 'Error Detected',
+    duration: '-',
+    energy: '-'
   }
-}
-
-const isFormValid = computed(() => {
-  return email.value && 
-         password.value && 
-         !errors.value.email && 
-         !errors.value.password
-})
-
-async function submitLogin() {
-  validateEmail()
-  validatePassword()
-  
-  if (!isFormValid.value) return
-
-  loading.value = true
-  error.value = ''
-  
-  try {
-    await login(email.value, password.value)
-    router.push('/chargers')
-  } catch (err) {
-    error.value = err.response?.data?.message || 'Invalid email or password'
-  } finally {
-    loading.value = false
-  }
-}
+])
 </script>
 
 <style scoped>
-.login-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
-  padding: 1rem;
-}
-
-.login-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 420px;
+.dashboard-container {
   padding: 2rem;
 }
 
-.login-header {
-  text-align: center;
-  margin-bottom: 2rem;
+.section-title {
+  margin: 2rem 0 1rem;
+  color: var(--gray-900);
+  font-size: 1.5rem;
 }
 
-.login-logo {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 1rem;
-}
-
-.login-header h1 {
-  font-size: 1.75rem;
-  color: #1e293b;
-  margin-bottom: 0.5rem;
-}
-
-.login-header p {
-  color: #64748b;
-  font-size: 0.875rem;
-}
-
-.login-form {
-  margin-bottom: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  color: #475569;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.form-group label i {
-  margin-right: 0.5rem;
-  color: #64748b;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  transition: all 0.3s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #0061f2;
-  box-shadow: 0 0 0 3px rgba(0, 97, 242, 0.1);
-}
-
-.form-input.error {
-  border-color: #dc2626;
-}
-
-.password-input {
-  position: relative;
-}
-
-.toggle-password {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0;
-}
-
-.error-message {
-  display: block;
-  color: #dc2626;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-}
-
-.login-button {
-  width: 100%;
-  padding: 0.875rem;
-  background: #0061f2;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.login-button:hover:not(:disabled) {
-  background: #0052cc;
-}
-
-.login-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.spinner i {
-  font-size: 1.25rem;
-}
-
-.alert-error {
+.charger-details {
   margin-top: 1rem;
-  padding: 0.75rem;
-  background: #fef2f2;
-  border: 1px solid #fee2e2;
-  border-radius: 8px;
-  color: #dc2626;
-  font-size: 0.875rem;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.login-footer {
-  text-align: center;
-  color: #64748b;
+  justify-content: space-between;
+  color: var(--gray-600);
   font-size: 0.875rem;
-}
-
-.register-link {
-  color: #0061f2;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-.register-link:hover {
-  color: #0052cc;
-  text-decoration: underline;
 }
 </style>
