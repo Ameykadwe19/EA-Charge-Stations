@@ -64,6 +64,11 @@
           </div>
         </button>
 
+        <div v-if="success" class="alert-success">
+          <i class="fas fa-check-circle"></i>
+          {{ success }}
+        </div>
+
         <div v-if="error" class="alert-error">
           <i class="fas fa-exclamation-circle"></i>
           {{ error }}
@@ -93,13 +98,13 @@ const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
+const success = ref('')
 const showPassword = ref(false)
 const errors = ref({
   email: '',
   password: ''
 })
 
-// Validation functions
 const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!email.value) {
@@ -136,10 +141,14 @@ async function submitRegister() {
 
   loading.value = true
   error.value = ''
-  
+  success.value = ''
+
   try {
     await register(email.value, password.value)
-    router.push('/login')
+    success.value = 'Account created successfully!'
+    setTimeout(() => {
+      router.push('/login')
+    }, 1500)
   } catch (err) {
     error.value = err.response?.data?.message || 'Registration failed. Please try again.'
   } finally {
@@ -297,6 +306,19 @@ async function submitRegister() {
   gap: 0.5rem;
 }
 
+.alert-success {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #059669;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .register-footer {
   text-align: center;
   color: #64748b;
@@ -314,7 +336,8 @@ async function submitRegister() {
   color: #0052cc;
   text-decoration: underline;
 }
- @media (max-width: 640px) {
+
+@media (max-width: 640px) {
   .register-card {
     padding: 1.25rem;
   }
@@ -342,5 +365,4 @@ async function submitRegister() {
     font-size: 0.8rem;
   }
 }
- 
 </style>
