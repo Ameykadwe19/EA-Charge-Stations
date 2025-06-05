@@ -227,21 +227,22 @@ main.with-nav {
   margin-left: auto;
 }
 
-/* Mobile dropdown */
+
 .mobile-menu {
-  background: white;
-  position: absolute;
-  top: 64px;
+  position: fixed; 
+  top: 64px; 
   right: 1rem;
+  background: white;
   border-radius: 0.75rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  z-index: 999;
+  z-index: 9999; 
   min-width: 180px;
-  animation: dropdownFade 0.25s ease-out;
-  overflow: hidden;
+  max-height: calc(100vh - 80px); 
+  overflow-y: auto;
   border: 1px solid #e5e7eb;
+  animation: dropdownFade 0.25s ease-out;
 }
 
 @keyframes dropdownFade {
