@@ -1,7 +1,7 @@
 <template>
-  <div class="charger-list overflow-y-auto max-h-[80vh]">
-    <header class="page-header flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="header-content w-full md:w-auto flex justify-between items-center gap-4">
+  <div class="charger-list">
+    <header class="page-header">
+      <div class="header-content">
         <h1>Charging Stations</h1>
         <button class="add-button" @click="openAddModal">
           <i class="fas fa-plus"></i>
