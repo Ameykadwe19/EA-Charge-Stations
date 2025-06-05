@@ -1,6 +1,6 @@
 <template>
   <div class="register-container">
-    <div class="register-card">
+    <div class="register-card max-w-sm w-full mx-auto p-6 md:p-8">
       <div class="register-header">
         <img src="@/assets/logo.svg" alt="Logo" class="register-logo">
         <h1>Create Account</h1>
