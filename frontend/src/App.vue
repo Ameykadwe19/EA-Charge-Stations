@@ -7,47 +7,53 @@
         <span>Charging Station</span>
       </div>
 
-      <!-- Desktop Nav Links -->
-      <div class="nav-links">
+      <!-- Desktop Nav -->
+      <div class="nav-links desktop-only">
         <router-link to="/chargers" class="nav-link">
-          <i class="fas fa-list"></i> List View
+          <i class="fas fa-list"></i>
+          List View
         </router-link>
         <router-link to="/map" class="nav-link">
-          <i class="fas fa-map-marked-alt"></i> Map View
+          <i class="fas fa-map-marked-alt"></i>
+          Map View
         </router-link>
         <button @click="handleLogout" class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i> Logout
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
         </button>
       </div>
 
-      <!-- Hamburger for mobile -->
-      <button class="hamburger" @click="toggleMobileMenu" v-if="isMobile">
+      <!-- Mobile Hamburger -->
+      <div class="hamburger mobile-only" @click="menuOpen = !menuOpen">
         <i class="fas fa-bars"></i>
-      </button>
-    </nav>
+      </div>
 
-    <!-- Mobile Dropdown Menu -->
-    <div v-if="showMobileMenu && isMobile" class="mobile-menu">
-      <router-link
-        v-if="currentPath === '/chargers'"
-        to="/map"
-        class="mobile-link"
-        @click="toggleMobileMenu"
-      >
-        <i class="fas fa-map"></i> Map View
-      </router-link>
-      <router-link
-        v-else
-        to="/chargers"
-        class="mobile-link"
-        @click="toggleMobileMenu"
-      >
-        <i class="fas fa-list"></i> List View
-      </router-link>
-      <button class="mobile-link" @click="handleLogout">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
-    </div>
+      <!-- Mobile Menu -->
+      <div v-if="menuOpen" class="mobile-menu">
+        <router-link
+          v-if="$route.path === '/chargers'"
+          to="/map"
+          class="nav-link"
+          @click="menuOpen = false"
+        >
+          <i class="fas fa-map-marked-alt"></i>
+          Map View
+        </router-link>
+        <router-link
+          v-if="$route.path === '/map'"
+          to="/chargers"
+          class="nav-link"
+          @click="menuOpen = false"
+        >
+          <i class="fas fa-list"></i>
+          List View
+        </router-link>
+        <button @click="handleLogout" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </button>
+      </div>
+    </nav>
 
     <!-- Main Content -->
     <main :class="{ 'with-nav': isLoggedIn }">
@@ -62,64 +68,32 @@ import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
+const menuOpen = ref(false)
 
 const token = ref(localStorage.getItem('token'))
-const showMobileMenu = ref(false)
 
-const isLoggedIn = computed(() => token.value && route.path !== '/login' && route.path !== '/register')
-const currentPath = computed(() => route.path)
-const isMobile = computed(() => window.innerWidth <= 768)
+const isLoggedIn = computed(() => {
+  return token.value && route.path !== '/login' && route.path !== '/register'
+})
 
-const toggleMobileMenu = () => {
-  showMobileMenu.value = !showMobileMenu.value
-}
+watch(route, () => {
+  token.value = localStorage.getItem('token')
+  menuOpen.value = false // close on route change
+})
 
 const handleLogout = () => {
   localStorage.removeItem('token')
   token.value = null
+  menuOpen.value = false
   router.push('/login')
 }
-
-watch(route, () => {
-  token.value = localStorage.getItem('token')
-})
 
 onMounted(() => {
   token.value = localStorage.getItem('token')
 })
 </script>
 
-<style>
-/* Reset and Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.5;
-  color: #1e293b;
-  background: #f8fafc;
-}
-
-#app {
-  height: 100%;
-}
-
-.app {
-  min-height: 100vh;
-  background: #f8fafc;
-}
-
-/* Navbar */
+<style scoped>
 .navbar {
   background: white;
   padding: 1rem 2rem;
@@ -190,62 +164,53 @@ body {
   background: #fecaca;
 }
 
-main {
-  min-height: 100vh;
-  padding: 1rem;
-}
-
-main.with-nav {
-  padding-top: calc(64px + 1rem);
-}
-
-/* Hamburger button (right aligned) */
 .hamburger {
-  background: none;
-  border: none;
   font-size: 1.5rem;
-  color: #1e293b;
   cursor: pointer;
-  display: none;
-  margin-left: auto;
+  color: #1e293b;
 }
 
-/* Mobile dropdown */
+/* Mobile dropdown menu */
 .mobile-menu {
-  background: white;
   position: absolute;
   top: 64px;
   right: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  z-index: 999;
+  z-index: 1001;
+  animation: slideDown 0.2s ease-in-out;
 }
 
-.mobile-link {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: left;
-  background: white;
-  text-decoration: none;
-  color: #1e293b;
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive visibility */
+.desktop-only {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-.mobile-link:hover {
-  background: #f1f5f9;
+.mobile-only {
+  display: none;
 }
 
-/* Mobile styles */
 @media (max-width: 768px) {
-  .nav-links {
-    display: none !important;
+  .desktop-only {
+    display: none;
   }
 
-  .hamburger {
+  .mobile-only {
     display: block;
   }
 
