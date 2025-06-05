@@ -224,4 +224,31 @@ button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
+  @media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    height: auto;
+    padding: 1rem;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .nav-link, .logout-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  main.with-nav {
+    padding-top: 120px;
+  }
+}
+
 </style>
