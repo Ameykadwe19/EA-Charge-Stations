@@ -233,41 +233,49 @@ main.with-nav {
   position: absolute;
   top: 64px;
   right: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   z-index: 999;
-
-  /* smooth slide animation */
-  animation: dropdownFade 0.2s ease-out;
+  min-width: 180px;
+  animation: dropdownFade 0.25s ease-out;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
 }
 
 @keyframes dropdownFade {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-10px);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 .mobile-link {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: left;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
   background: white;
   text-decoration: none;
-  color: #1e293b;
+  color: #334155;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mobile-link:last-child {
+  border-bottom: none;
 }
 
 .mobile-link:hover {
-  background: #f1f5f9;
+  background: #f8fafc;
+  color: #0061f2;
 }
 
 /* Mobile styles */
