@@ -314,4 +314,33 @@ async function submitRegister() {
   color: #0052cc;
   text-decoration: underline;
 }
+ @media (max-width: 640px) {
+  .register-card {
+    padding: 1.25rem;
+  }
+
+  .register-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .register-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .form-input {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+  }
+
+  .register-button {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .register-footer {
+    font-size: 0.8rem;
+  }
+}
+ 
 </style>
