@@ -122,7 +122,7 @@ async function submit() {
         headers: { Authorization: `Bearer ${token}` }
       })
     } else {
-      // ➕ Create charger
+      //  Create charger
       await axios.post(`${API_BASE_URL}/chargers`, form.value, {
         headers: { Authorization: `Bearer ${token}` }
       })
