@@ -9,7 +9,6 @@ const {
   deleteCharger
 } = require('../controllers/chargerController');
 
-// Protected routes (need authentication but no specific role)
 router.use(protect);  // All routes below this will require authentication
 
 router.route('/')
