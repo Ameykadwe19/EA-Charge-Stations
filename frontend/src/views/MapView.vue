@@ -2,9 +2,25 @@
   <div class="map-view">
     <h2>Map View</h2>
     <div class="map-container">
-      <!-- Side Details Panel -->
+      <!-- Side Panel -->
       <div class="side-panel">
         <h3>Charging Stations</h3>
+
+        <!--Search + Filter -->
+        <div class="controls">
+          <input 
+            type="text" 
+            v-model="search" 
+            placeholder="Search stations..." 
+            class="search-input" 
+          />
+          <select v-model="statusFilter" class="filter-select">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
         <div class="station-list">
           <div v-if="loading" class="loading">
             <i class="fas fa-spinner fa-spin"></i>
@@ -15,7 +31,7 @@
           </div>
           <div 
             v-else
-            v-for="station in stations" 
+            v-for="station in filteredStations" 
             :key="station.id"
             class="station-item"
             :class="{ 'active': selectedStation?.id === station.id }"
@@ -48,11 +64,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import L from 'leaflet'
 import axios from 'axios'
 
-// 🔹 Import Leaflet CSS & fix marker icon URLs
+// Leaflet config
 import 'leaflet/dist/leaflet.css'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
@@ -69,33 +85,40 @@ const stations = ref([])
 const loading = ref(true)
 const error = ref(null)
 const selectedStation = ref(null)
+const search = ref('')
+const statusFilter = ref('')
 let map
 let markers = {}
 
 const initMap = () => {
   map = L.map('map').setView([18.5204, 73.8567], 13)
-
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> & CartoDB',
-}).addTo(map)
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> & CartoDB',
+  }).addTo(map)
 }
 
 const selectStation = (station) => {
   selectedStation.value = station
-
   requestAnimationFrame(() => {
     if (markers[station.id]) {
       markers[station.id].openPopup()
       map.setView([station.latitude, station.longitude], 15)
-      map.invalidateSize() // 🔥 fixes layout blank issue
+      map.invalidateSize()
     }
   })
 }
 
+// Filtered station list
+const filteredStations = computed(() => {
+  return stations.value.filter(s => {
+    const matchSearch = s.name.toLowerCase().includes(search.value.toLowerCase())
+    const matchStatus = !statusFilter.value || s.status === statusFilter.value
+    return matchSearch && matchStatus
+  })
+})
 
 onMounted(async () => {
   initMap()
-
   try {
     const res = await axios.get(API_URL, {
       headers: { Authorization: `Bearer ${token}` }
@@ -106,14 +129,12 @@ onMounted(async () => {
     res.data.forEach(charger => {
       const marker = L.marker([charger.latitude, charger.longitude]).addTo(map)
       markers[charger.id] = marker
-
       marker.bindPopup(`
         <b>${charger.name}</b><br/>
         Status: ${charger.status}<br/>
         Power: ${charger.powerOutput} kW<br/>
         Connector: ${charger.connectorType}
       `)
-
       marker.on('click', () => {
         selectedStation.value = charger
       })
@@ -151,6 +172,31 @@ onMounted(async () => {
   padding: 1rem;
   margin: 0;
   border-bottom: 1px solid #e2e8f0;
+}
+
+/* Search & Filter Controls */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.search-input,
+.filter-select {
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.search-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #0061f2;
+  box-shadow: 0 0 0 3px rgba(0, 97, 242, 0.1);
 }
 
 .station-list {
@@ -233,7 +279,8 @@ onMounted(async () => {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.loading, .error {
+.loading,
+.error {
   display: flex;
   align-items: center;
   gap: 0.5rem;
