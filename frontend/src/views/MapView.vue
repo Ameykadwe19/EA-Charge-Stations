@@ -5,6 +5,12 @@
       <!-- Side Details Panel -->
       <div class="side-panel">
         <h3>Charging Stations</h3>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Search by name..."
+          class="search-input"
+        />
         <div class="station-list">
           <div v-if="loading" class="loading">
             <i class="fas fa-spinner fa-spin"></i>
@@ -15,7 +21,7 @@
           </div>
           <div 
             v-else
-            v-for="station in stations" 
+            v-for="station in filteredStations" 
             :key="station.id"
             class="station-item"
             :class="{ 'active': selectedStation?.id === station.id }"
@@ -48,11 +54,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import L from 'leaflet'
 import axios from 'axios'
 
-// 🔹 Import Leaflet CSS & fix marker icon URLs
 import 'leaflet/dist/leaflet.css'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
@@ -69,15 +74,22 @@ const stations = ref([])
 const loading = ref(true)
 const error = ref(null)
 const selectedStation = ref(null)
+const searchQuery = ref("")
 let map
 let markers = {}
+
+const filteredStations = computed(() =>
+  stations.value.filter(station =>
+    station.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+)
 
 const initMap = () => {
   map = L.map('map').setView([18.5204, 73.8567], 13)
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> & CartoDB',
-}).addTo(map)
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> & CartoDB',
+  }).addTo(map)
 }
 
 const selectStation = (station) => {
@@ -87,11 +99,10 @@ const selectStation = (station) => {
     if (markers[station.id]) {
       markers[station.id].openPopup()
       map.setView([station.latitude, station.longitude], 15)
-      map.invalidateSize() // 🔥 fixes layout blank issue
+      map.invalidateSize()
     }
   })
 }
-
 
 onMounted(async () => {
   initMap()
@@ -135,7 +146,7 @@ onMounted(async () => {
   display: flex;
   gap: 1rem;
   height: 600px;
-  min-height: 600px;
+  flex-direction: row;
 }
 
 .side-panel {
@@ -151,6 +162,22 @@ onMounted(async () => {
   padding: 1rem;
   margin: 0;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.search-input {
+  width: calc(100% - 2rem);
+  margin: 0 1rem 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .station-list {
@@ -244,5 +271,23 @@ onMounted(async () => {
 
 .error {
   color: #dc2626;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .map-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .side-panel {
+    width: 100%;
+    max-height: 300px;
+  }
+
+  #map {
+    height: 400px;
+    min-height: 400px;
+  }
 }
 </style>
