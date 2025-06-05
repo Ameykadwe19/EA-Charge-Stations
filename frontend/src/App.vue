@@ -22,7 +22,7 @@
 
       <!-- Hamburger for mobile -->
       <button class="hamburger" @click="toggleMobileMenu" v-if="isMobile">
-        <i class="fas fa-bars"></i>
+        <i :class="showMobileMenu ? 'fas fa-times' : 'fas fa-bars'"></i>
       </button>
     </nav>
 
@@ -77,15 +77,32 @@ const toggleMobileMenu = () => {
 const handleLogout = () => {
   localStorage.removeItem('token')
   token.value = null
+  showMobileMenu.value = false
   router.push('/login')
 }
 
 watch(route, () => {
   token.value = localStorage.getItem('token')
+  showMobileMenu.value = false
 })
 
 onMounted(() => {
   token.value = localStorage.getItem('token')
+
+  // Close menu on outside click
+  document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.mobile-menu')
+    const button = document.querySelector('.hamburger')
+
+    if (
+      menu &&
+      !menu.contains(e.target) &&
+      button &&
+      !button.contains(e.target)
+    ) {
+      showMobileMenu.value = false
+    }
+  })
 })
 </script>
 
@@ -199,7 +216,7 @@ main.with-nav {
   padding-top: calc(64px + 1rem);
 }
 
-/* Hamburger button (right aligned) */
+/* Hamburger button */
 .hamburger {
   background: none;
   border: none;
@@ -221,6 +238,20 @@ main.with-nav {
   display: flex;
   flex-direction: column;
   z-index: 999;
+
+  /* smooth slide animation */
+  animation: dropdownFade 0.2s ease-out;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mobile-link {
