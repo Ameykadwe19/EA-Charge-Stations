@@ -1,9 +1,9 @@
 <template>
   <div class="map-view">
     <h2>Map View</h2>
-    <div class="map-container">
+    <div class="map-container flex flex-col md:flex-row">
       <!-- Side Details Panel -->
-      <div class="side-panel">
+      <div class="side-panel w-full md:w-1/3 max-h-[80vh] overflow-y-auto">
         <h3>Charging Stations</h3>
         <div class="station-list">
           <div v-if="loading" class="loading">
@@ -42,9 +42,11 @@
       </div>
 
       <!-- Map -->
-      <div id="map"></div>
+      <div class="map w-full md:w-2/3 h-96 md:h-auto">
+  <div id="map"></div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
