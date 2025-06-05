@@ -3,61 +3,87 @@
     <!-- Navigation -->
     <nav v-if="isLoggedIn" class="navbar">
       <div class="nav-brand">
-        <img src="@/assets/logo.svg" alt="Logo" class="nav-logo">
+        <img src="@/assets/logo.svg" alt="Logo" class="nav-logo" />
         <span>Charging Station</span>
       </div>
-      
+
+      <!-- Desktop Nav Links -->
       <div class="nav-links">
         <router-link to="/chargers" class="nav-link">
-          <i class="fas fa-list"></i>
-          List View
+          <i class="fas fa-list"></i> List View
         </router-link>
         <router-link to="/map" class="nav-link">
-          <i class="fas fa-map-marked-alt"></i>
-          Map View
+          <i class="fas fa-map-marked-alt"></i> Map View
         </router-link>
         <button @click="handleLogout" class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i>
-          Logout
+          <i class="fas fa-sign-out-alt"></i> Logout
         </button>
       </div>
+
+      <!-- Hamburger for mobile -->
+      <button class="hamburger" @click="toggleMobileMenu" v-if="isMobile">
+        <i class="fas fa-bars"></i>
+      </button>
     </nav>
+
+    <!-- Mobile Dropdown Menu -->
+    <div v-if="showMobileMenu && isMobile" class="mobile-menu">
+      <router-link
+        v-if="currentPath === '/chargers'"
+        to="/map"
+        class="mobile-link"
+        @click="toggleMobileMenu"
+      >
+        <i class="fas fa-map"></i> Map View
+      </router-link>
+      <router-link
+        v-else
+        to="/chargers"
+        class="mobile-link"
+        @click="toggleMobileMenu"
+      >
+        <i class="fas fa-list"></i> List View
+      </router-link>
+      <button class="mobile-link" @click="handleLogout">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
 
     <!-- Main Content -->
     <main :class="{ 'with-nav': isLoggedIn }">
       <router-view></router-view>
-      </main>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 
-// Add reactive token state
 const token = ref(localStorage.getItem('token'))
+const showMobileMenu = ref(false)
 
-// Update isLoggedIn to use token ref
-const isLoggedIn = computed(() => {
-  return token.value && route.path !== '/login' && route.path !== '/register'
-})
+const isLoggedIn = computed(() => token.value && route.path !== '/login' && route.path !== '/register')
+const currentPath = computed(() => route.path)
+const isMobile = computed(() => window.innerWidth <= 768)
 
-// Watch for route changes to check token
-watch(route, () => {
-  token.value = localStorage.getItem('token')
-})
+const toggleMobileMenu = () => {
+  showMobileMenu.value = !showMobileMenu.value
+}
 
-// Handle logout
 const handleLogout = () => {
   localStorage.removeItem('token')
   token.value = null
   router.push('/login')
 }
 
-// Check token on mount
+watch(route, () => {
+  token.value = localStorage.getItem('token')
+})
+
 onMounted(() => {
   token.value = localStorage.getItem('token')
 })
@@ -88,13 +114,12 @@ body {
   height: 100%;
 }
 
-/* App Layout */
 .app {
   min-height: 100vh;
   background: #f8fafc;
 }
 
-/* Navbar Styles */
+/* Navbar */
 .navbar {
   background: white;
   padding: 1rem 2rem;
@@ -165,7 +190,6 @@ body {
   background: #fecaca;
 }
 
-/* Main Content */
 main {
   min-height: 100vh;
   padding: 1rem;
@@ -175,80 +199,58 @@ main.with-nav {
   padding-top: calc(64px + 1rem);
 }
 
-/* Utility Classes */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* Leaflet Map Fixes */
-.leaflet-container {
-  height: 100%;
-  width: 100%;
-  z-index: 1;
-}
-
-.leaflet-div-icon {
-  background: transparent;
+/* Hamburger button (right aligned) */
+.hamburger {
+  background: none;
   border: none;
-}
-
-/* Form Styles */
-input, select, textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: all 0.3s;
-}
-
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: #0061f2;
-  box-shadow: 0 0 0 3px rgba(0, 97, 242, 0.1);
-}
-
-button {
+  font-size: 1.5rem;
+  color: #1e293b;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  border: none;
-  transition: all 0.3s;
+  display: none;
+  margin-left: auto;
 }
 
-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+/* Mobile dropdown */
+.mobile-menu {
+  background: white;
+  position: absolute;
+  top: 64px;
+  right: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
 }
-  @media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    height: auto;
-    padding: 1rem;
-  }
 
+.mobile-link {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  background: white;
+  text-decoration: none;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mobile-link:hover {
+  background: #f1f5f9;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
   .nav-links {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    width: 100%;
-    overflow-x: auto;
+    display: none !important;
   }
 
-  .nav-link, .logout-btn {
-    flex: 1 1 auto;
-    justify-content: center;
-    white-space: nowrap;
+  .hamburger {
+    display: block;
   }
 
   main.with-nav {
     padding-top: 120px;
   }
 }
-
 </style>
