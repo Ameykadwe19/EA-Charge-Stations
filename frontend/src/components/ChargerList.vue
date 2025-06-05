@@ -147,7 +147,7 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { Modal } from 'bootstrap'
 
-// ✅ Use your deployed backend base URL with fallback and correct '/api' suffix
+//  Use deployed backend base URL with fallback and correct '/api' suffix
 const API_BASE_RAW = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 const API_BASE_URL = API_BASE_RAW.endsWith('/') ? API_BASE_RAW + 'api' : API_BASE_RAW + '/api'
 
