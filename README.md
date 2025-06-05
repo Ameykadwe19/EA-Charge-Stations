@@ -1,107 +1,141 @@
 # ⚡ EA-Charge-Stations
 
-**EA-Charge-Stations** is a full-stack web application that allows users to manage Electric Vehicle (EV) charging stations. The app provides a clean UI for station listing, live map view, and full CRUD operations.
-Built using modern web technologies for both frontend and backend, it helps manage charging stations efficiently and intuitively.
+**EA-Charge-Stations** is a full-stack web application for managing EV charging stations. It features authentication, station listings, a map view, and CRUD operations—all packaged in a modern responsive UI.
 
 ---
 
-## 🚀 Features
+## 🌐 Live Demo
 
-- 🔐 **User Authentication** (Register/Login)
-- 🗺️ **Map View with Leaflet.js**
-- 📋 **Station List with Filters**
-- ➕ **Add / Edit / Delete Charging Stations**
-- ✅ **Responsive Design (Mobile & Desktop)**
-- 💬 **Error, Loading, and Empty States**
-- 🎛️ **Modal-based Form Interface**
-- 📦 **API-integrated with Sequelize & PostgreSQL**
+🔗 [https://ea-charge-stations.vercel.app](https://ea-charge-stations.vercel.app)
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tech Stack & Documentation
 
-### 🖥️ Frontend
-- **Vue.js 3**
-- **Vue Router**
-- **Tailwind CSS (custom CSS also used)**
-- **Leaflet.js** for map rendering
+### 🔧 Backend
 
-### ⚙️ Backend
-- **Node.js + Express.js**
-- **Sequelize ORM**
-- **PostgreSQL** as the database
-- **JWT-based authentication**
-- **RESTful API with validation & error handling**
+| Tech | Purpose |
+|------|---------|
+| **Node.js** | JavaScript runtime for backend server. |
+| **Express.js** | Web framework to define APIs and route handling. |
+| **PostgreSQL** | Relational database to store charging station and user data. |
+| **Sequelize ORM** | Manages PostgreSQL database with models, migrations, and easy queries. |
+| **JWT (JSON Web Token)** | Handles secure user authentication. |
+| **dotenv** | Loads sensitive configuration like DB credentials from `.env` file. |
+| **bcryptjs** | Used for hashing and comparing user passwords securely. |
+
+### 🖼 Frontend
+
+| Tech | Purpose |
+|------|---------|
+| **Vue.js 3** | Main frontend framework for building UI components and SPA. |
+| **Vue Router** | Manages page routing (e.g., `/login`, `/register`, `/dashboard`). |
+| **Tailwind CSS** | Provides utility-first CSS classes for fast and responsive styling. |
+| **Leaflet.js** | Used to display EV charging station locations on an interactive map. |
+| **Axios** | For making API calls from frontend to backend. |
+| **Font Awesome** | Icons used across forms, navigation, and map controls. |
 
 ---
 
-## 📂 Project Structure
+## 📋 Features
+
+- 🔐 User registration and login
+- 🧭 List and map view of charging stations
+- 🧱 Add, edit, and delete stations (CRUD)
+- 📱 Responsive layout for mobile and desktop
+- 💾 Data persistence using PostgreSQL + Sequelize
+- 🗂 Organized API structure with MVC pattern
+
+---
+
+## 📂 Folder Structure
 
 ```
 EA-Charge-Stations/
-├── backend/              # Node + Express + PostgreSQL + Sequelize
-├── frontend/             # Vue 3 App (Dashboard, Login, Map View)
-├── migrations/           # Sequelize migration files
-├── models/               # Sequelize models
-├── routes/               # Express API routes
+├── frontend/         # Vue.js frontend with Tailwind and Leaflet
+├── backend/          # Express backend with Sequelize
+├── migrations/       # DB schema migrations
+├── models/           # Sequelize models (User, Station)
+├── routes/           # API endpoints
+├── controllers/      # Logic for handling requests
 └── README.md
 ```
 
 ---
 
-## 📦 Setup Instructions
+## 🧑‍💻 Installation
 
-### 1. Clone the repo
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Ameykadwe19/EA-Charge-Stations.git
 cd EA-Charge-Stations
 ```
 
-### 2. Backend Setup
+### 2. Setup Backend
 
 ```bash
 cd backend
 npm install
-npx sequelize db:migrate
+```
+
+Create a `.env` file:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=ea_charge
+DB_USER=postgres
+DB_PASSWORD=your_password
+JWT_SECRET=your_secret
+```
+
+Run migrations:
+
+```bash
+npx sequelize-cli db:migrate
+```
+
+Start server:
+
+```bash
 npm start
 ```
 
-Make sure PostgreSQL is running and credentials match your `.env` config.
-
-### 3. Frontend Setup
+### 3. Setup Frontend
 
 ```bash
-cd frontend
+cd ../frontend
 npm install
 npm run dev
 ```
 
-Visit `http://localhost:5173` to view the app.
+---
+
+## 🔄 CRUD Operations
+
+- **Create** – Add station using form
+- **Read** – View stations in list and map view
+- **Update** – Edit station info via modal
+- **Delete** – Remove station via UI
 
 ---
 
-## 🧪 CRUD Operations
+## 🧭 Navigation
 
-- **Create**: Add a new charging station via modal form
-- **Read**: View list and map with filterable stations
-- **Update**: Edit station info from the list
-- **Delete**: Remove any station from the database
-
----
-
-## 🧠 About the Project
-
-This application was built to support real-time EV infrastructure planning and management. With a combination of map interface and admin panel,
-it's ideal for managing city-level or organization-level charging deployments. Scalable, secure, and responsive — it’s ready for production-level enhancements.
+| Route | Purpose |
+|-------|---------|
+| `/login` | User login |
+| `/register` | Create account |
+| `/stations` | Station list view |
+| `/stations/map` | Map view with markers |
 
 ---
 
-## 🖋 Author
+## 👨‍💻 Author
 
 **Amey Kadwe**  
-📧 [ameykadwe19@example.com](mailto:ameykadwe19@gmail.com)  
-🔗 [GitHub Profile](https://github.com/Ameykadwe19)
+GitHub: [@Ameykadwe19](https://github.com/Ameykadwe19)
 
 ---
 
