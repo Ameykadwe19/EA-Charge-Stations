@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <div class="login-card">
+    <div class="login-card max-w-sm w-full mx-auto p-6 md:p-8">
       <div class="login-header">
         <img src="@/assets/logo.svg" alt="Logo" class="login-logo">
         <h1>Welcome Back</h1>
