@@ -2,12 +2,27 @@
   <div class="register-container">
     <div class="register-card">
       <div class="register-header">
-        <img src="@/assets/logo.svg" alt="Logo" class="register-logo">
+        <img src="@/assets/logo.svg" alt="Logo" class="register-logo" />
         <h1>Create Account</h1>
-        <p>Join us to manage your charging stations</p>
+        <p>Register to access EV charging stations dashboard</p>
       </div>
 
       <form @submit.prevent="submitRegister" class="register-form">
+        <div class="form-group">
+          <label for="name">
+            <i class="fas fa-user"></i>
+            Full Name
+          </label>
+          <input
+            id="name"
+            v-model="name"
+            type="text"
+            class="form-input"
+            placeholder="Enter your name"
+            required
+          />
+        </div>
+
         <div class="form-group">
           <label for="email">
             <i class="fas fa-envelope"></i>
@@ -17,13 +32,11 @@
             id="email"
             v-model="email"
             type="email"
-            :class="['form-input', { 'error': errors.email }]"
+            class="form-input"
             placeholder="Enter your email"
             required
-            autocomplete="email"
-            @input="validateEmail"
+            autocomplete="username"
           />
-          <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
         </div>
 
         <div class="form-group">
@@ -31,43 +44,27 @@
             <i class="fas fa-lock"></i>
             Password
           </label>
-          <div class="password-input">
-            <input
-              id="password"
-              v-model="password"
-              :type="showPassword ? 'text' : 'password'"
-              :class="['form-input', { 'error': errors.password }]"
-              placeholder="Create a password"
-              required
-              autocomplete="new-password"
-              @input="validatePassword"
-            />
-            <button 
-              type="button" 
-              class="toggle-password"
-              @click="showPassword = !showPassword"
-            >
-              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-            </button>
-          </div>
-          <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
+          <input
+            id="password"
+            v-model="password"
+            type="password"
+            class="form-input"
+            placeholder="Create a password"
+            required
+            autocomplete="new-password"
+          />
         </div>
 
-        <button 
-          type="submit" 
-          class="register-button" 
+        <button
+          type="submit"
+          class="register-button"
           :disabled="loading || !isFormValid"
         >
-          <span v-if="!loading">Create Account</span>
+          <span v-if="!loading">Register</span>
           <div v-else class="spinner">
             <i class="fas fa-circle-notch fa-spin"></i>
           </div>
         </button>
-
-        <div v-if="success" class="alert-success">
-          <i class="fas fa-check-circle"></i>
-          {{ success }}
-        </div>
 
         <div v-if="error" class="alert-error">
           <i class="fas fa-exclamation-circle"></i>
@@ -76,10 +73,8 @@
       </form>
 
       <div class="register-footer">
-        <p>Already have an account? 
-          <router-link to="/login" class="login-link">
-            Sign in here
-          </router-link>
+        <p>Already have an account?
+          <router-link to="/login" class="login-link">Login here</router-link>
         </p>
       </div>
     </div>
@@ -89,72 +84,45 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from '../composables/useAuth'
+import axios from 'axios'
 
-const router = useRouter()
-const { register } = useAuth()
-
+const name = ref('')
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
-const success = ref('')
-const showPassword = ref(false)
-const errors = ref({
-  email: '',
-  password: ''
-})
 
-const validateEmail = () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!email.value) {
-    errors.value.email = 'Email is required'
-  } else if (!emailRegex.test(email.value)) {
-    errors.value.email = 'Please enter a valid email address'
-  } else {
-    errors.value.email = ''
-  }
-}
-
-const validatePassword = () => {
-  if (!password.value) {
-    errors.value.password = 'Password is required'
-  } else if (password.value.length < 6) {
-    errors.value.password = 'Password must be at least 6 characters'
-  } else {
-    errors.value.password = ''
-  }
-}
+const router = useRouter()
 
 const isFormValid = computed(() => {
-  return email.value && 
-         password.value && 
-         !errors.value.email && 
-         !errors.value.password
+  return name.value && email.value && password.value.length >= 6
 })
 
 async function submitRegister() {
-  validateEmail()
-  validatePassword()
-  
   if (!isFormValid.value) return
 
   loading.value = true
   error.value = ''
-  success.value = ''
 
- try {
-  await register(email.value, password.value)
-  success.value = 'Account created successfully!'
-  router.push('/login')
-} catch (err) {
-  error.value = err.response?.data?.message || 'Registration failed. Please try again.'
-} finally {
-  loading.value = false
+  try {
+    await axios.post('http://localhost:3000/api/register', {
+      name: name.value,
+      email: email.value,
+      password: password.value
+    })
+
+    // ✅ Redirect to login with success message
+    router.push({
+      path: '/login',
+      query: { message: 'Registration successful! Please log in.' }
+    })
+
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Registration failed. Try again.'
+  } finally {
+    loading.value = false
+  }
 }
-
-}
-
 </script>
 
 <style scoped>
@@ -163,14 +131,14 @@ async function submitRegister() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+  background: linear-gradient(135deg, #e0f7fa, #e1f5fe);
   padding: 1rem;
 }
 
 .register-card {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   width: 100%;
   max-width: 420px;
   padding: 2rem;
@@ -230,41 +198,14 @@ async function submitRegister() {
 
 .form-input:focus {
   outline: none;
-  border-color: #0061f2;
-  box-shadow: 0 0 0 3px rgba(0, 97, 242, 0.1);
-}
-
-.form-input.error {
-  border-color: #dc2626;
-}
-
-.password-input {
-  position: relative;
-}
-
-.toggle-password {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0;
-}
-
-.error-message {
-  display: block;
-  color: #dc2626;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
 }
 
 .register-button {
   width: 100%;
   padding: 0.875rem;
-  background: #0061f2;
+  background: #0284c7;
   color: white;
   border: none;
   border-radius: 8px;
@@ -275,7 +216,7 @@ async function submitRegister() {
 }
 
 .register-button:hover:not(:disabled) {
-  background: #0052cc;
+  background: #0369a1;
 }
 
 .register-button:disabled {
@@ -306,19 +247,6 @@ async function submitRegister() {
   gap: 0.5rem;
 }
 
-.alert-success {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 8px;
-  color: #059669;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .register-footer {
   text-align: center;
   color: #64748b;
@@ -326,14 +254,14 @@ async function submitRegister() {
 }
 
 .login-link {
-  color: #0061f2;
+  color: #0284c7;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
 }
 
 .login-link:hover {
-  color: #0052cc;
+  color: #0369a1;
   text-decoration: underline;
 }
 
