@@ -145,9 +145,11 @@ async function submitRegister() {
 
    try {
   await register(email.value, password.value)
+  loading.value = false     
   router.push({ path: '/login', query: { message: 'Account created successfully!' } })
 } catch (err) {
   error.value = err.response?.data?.message || 'Registration failed. Please try again.'
+  loading.value = false      
 }
 
 }
