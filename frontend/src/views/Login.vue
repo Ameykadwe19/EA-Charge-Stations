@@ -7,6 +7,12 @@
         <p>Sign in to manage your charging stations</p>
       </div>
 
+      <!-- Success Message -->
+      <div v-if="$route.query.message" class="alert-success">
+        <i class="fas fa-check-circle"></i>
+        {{ $route.query.message }}
+      </div>
+
       <form @submit.prevent="submitLogin" class="login-form">
         <div class="form-group">
           <label for="email">
@@ -82,11 +88,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
+const route = useRoute()
 const { login } = useAuth()
 
 const email = ref('')
@@ -146,6 +153,15 @@ async function submitLogin() {
     loading.value = false
   }
 }
+
+
+onMounted(() => {
+  if (route.query.message) {
+    setTimeout(() => {
+      router.replace({ path: route.path, query: {} })
+    }, 3000)
+  }
+})
 </script>
 
 <style scoped>
@@ -297,6 +313,19 @@ async function submitLogin() {
   gap: 0.5rem;
 }
 
+.alert-success {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #059669;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .login-footer {
   text-align: center;
   color: #64748b;
@@ -314,6 +343,7 @@ async function submitLogin() {
   color: #0052cc;
   text-decoration: underline;
 }
+
 @media (max-width: 640px) {
   .login-card {
     padding: 1.25rem;
@@ -342,6 +372,4 @@ async function submitLogin() {
     font-size: 0.8rem;
   }
 }
-
-  
 </style>
