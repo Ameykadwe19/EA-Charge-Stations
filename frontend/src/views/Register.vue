@@ -143,16 +143,16 @@ async function submitRegister() {
   error.value = ''
   success.value = ''
 
-  try {
-    await register(email.value, password.value)
-    success.value = 'Account created successfully!'
-    await new Promise(resolve => setTimeout(resolve, 2500))  // Wait 2.5 sec to show success
-    router.push('/login')
-  } catch (err) {
-    error.value = err.response?.data?.message || 'Registration failed. Please try again.'
-  } finally {
-    loading.value = false
-  }
+ try {
+  await register(email.value, password.value)
+  success.value = 'Account created successfully!'
+  router.push('/login')
+} catch (err) {
+  error.value = err.response?.data?.message || 'Registration failed. Please try again.'
+} finally {
+  loading.value = false
+}
+
 }
 
 </script>
