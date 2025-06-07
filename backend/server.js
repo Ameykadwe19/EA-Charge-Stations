@@ -30,6 +30,9 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connected successfully');
+    
+const [result] = await sequelize.query('SELECT current_database();');
+console.log('🛢️ Connected to DB:', result[0].current_database);
 
   
     await sequelize.sync({ alter: true });
