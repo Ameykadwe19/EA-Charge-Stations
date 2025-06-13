@@ -71,7 +71,8 @@
 <script setup>
 import { onMounted, ref, watchEffect, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import jwtDecode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
+
 
 const router = useRouter()
 const route = useRoute()
