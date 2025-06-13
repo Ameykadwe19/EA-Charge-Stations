@@ -85,8 +85,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
-import { default as jwt_decode } from 'jwt-decode'
-
 
 const router = useRouter()
 const { login } = useAuth()
@@ -138,24 +136,10 @@ async function submitLogin() {
 
   loading.value = true
   error.value = ''
-
+  
   try {
-    const token = await login(email.value, password.value)
-
-    // ✅ Decode JWT and extract role
-    const decoded = jwtDecode(token)
-    const role = decoded.role
-
-    // ✅ Save token and role locally
-    localStorage.setItem('token', token)
-    localStorage.setItem('userRole', role)
-
-    // ✅ Redirect based on role
-    if (role === 'admin') {
-      router.push('/chargers') // or '/admin' if needed
-    } else {
-      router.push('/chargers')
-    }
+    await login(email.value, password.value)
+    router.push('/chargers')
   } catch (err) {
     error.value = err.response?.data?.message || 'Invalid email or password'
   } finally {
@@ -165,7 +149,6 @@ async function submitLogin() {
 </script>
 
 <style scoped>
-/* [your existing styles remain unchanged] */
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -174,6 +157,7 @@ async function submitLogin() {
   background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
   padding: 1rem;
 }
+
 .login-card {
   background: white;
   border-radius: 16px;
@@ -182,30 +166,37 @@ async function submitLogin() {
   max-width: 420px;
   padding: 2rem;
 }
+
 .login-header {
   text-align: center;
   margin-bottom: 2rem;
 }
+
 .login-logo {
   width: 64px;
   height: 64px;
   margin-bottom: 1rem;
 }
+
 .login-header h1 {
   font-size: 1.75rem;
   color: #1e293b;
   margin-bottom: 0.5rem;
 }
+
 .login-header p {
   color: #64748b;
   font-size: 0.875rem;
 }
+
 .login-form {
   margin-bottom: 1.5rem;
 }
+
 .form-group {
   margin-bottom: 1.25rem;
 }
+
 .form-group label {
   display: block;
   color: #475569;
@@ -213,10 +204,12 @@ async function submitLogin() {
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
+
 .form-group label i {
   margin-right: 0.5rem;
   color: #64748b;
 }
+
 .form-input {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -225,17 +218,21 @@ async function submitLogin() {
   font-size: 0.875rem;
   transition: all 0.3s;
 }
+
 .form-input:focus {
   outline: none;
   border-color: #0061f2;
   box-shadow: 0 0 0 3px rgba(0, 97, 242, 0.1);
 }
+
 .form-input.error {
   border-color: #dc2626;
 }
+
 .password-input {
   position: relative;
 }
+
 .toggle-password {
   position: absolute;
   right: 1rem;
@@ -247,12 +244,14 @@ async function submitLogin() {
   cursor: pointer;
   padding: 0;
 }
+
 .error-message {
   display: block;
   color: #dc2626;
   font-size: 0.75rem;
   margin-top: 0.25rem;
 }
+
 .login-button {
   width: 100%;
   padding: 0.875rem;
@@ -265,21 +264,26 @@ async function submitLogin() {
   cursor: pointer;
   transition: all 0.3s;
 }
+
 .login-button:hover:not(:disabled) {
   background: #0052cc;
 }
+
 .login-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
 .spinner {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .spinner i {
   font-size: 1.25rem;
 }
+
 .alert-error {
   margin-top: 1rem;
   padding: 0.75rem;
@@ -292,17 +296,20 @@ async function submitLogin() {
   align-items: center;
   gap: 0.5rem;
 }
+
 .login-footer {
   text-align: center;
   color: #64748b;
   font-size: 0.875rem;
 }
+
 .register-link {
   color: #0061f2;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
 }
+
 .register-link:hover {
   color: #0052cc;
   text-decoration: underline;
