@@ -85,7 +85,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
-import jwtDecode from 'jwt-decode'  // ✅ added to decode role
+import { default as jwt_decode } from 'jwt-decode'
+
 
 const router = useRouter()
 const { login } = useAuth()
