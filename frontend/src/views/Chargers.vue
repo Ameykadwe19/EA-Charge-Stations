@@ -79,14 +79,12 @@
             <td>{{ charger.powerOutput }}</td>
             <td>{{ charger.connectorType }}</td>
             <td>
-              <template v-if="userRole === 'admin' || charger.UserId === currentUserId">
-                <button class="btn btn-sm btn-warning me-2" @click="editCharger(charger)">
-                  Edit
-                </button>
-                <button class="btn btn-sm btn-danger" @click="deleteCharger(charger.id)">
-                  Delete
-                </button>
-              </template>
+              <button class="btn btn-sm btn-warning me-2" @click="editCharger(charger)">
+                Edit
+              </button>
+              <button class="btn btn-sm btn-danger" @click="deleteCharger(charger.id)">
+                Delete
+              </button>
             </td>
           </tr>
         </tbody>
@@ -111,17 +109,12 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import axios from 'axios'
 import ChargerForm from '../components/ChargerForm.vue'
 
-// ✅ Decode user info from JWT
-const token = localStorage.getItem('token')
-const decoded = token ? JSON.parse(atob(token.split('.')[1])) : {}
-const userRole = decoded.role || 'user'
-const currentUserId = decoded.id || null
-
-// API URL
+// API base URL from environment variable, fallback localhost
 const API_BASE_URL_RAW = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 const API_BASE_URL = API_BASE_URL_RAW.endsWith('/') ? API_BASE_URL_RAW + 'api' : API_BASE_URL_RAW + '/api'
 
-// State
+
+// Reactive states
 const chargers = ref([])
 const loading = ref(false)
 const error = ref('')
@@ -134,10 +127,11 @@ const filters = reactive({
   powerOutput: ''
 })
 
-// Fetch Chargers
+// Fetch chargers with latest token each time
 const fetchChargers = async () => {
   loading.value = true
   error.value = ''
+  const token = localStorage.getItem('token')
   try {
     const res = await axios.get(`${API_BASE_URL}/chargers`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -167,6 +161,8 @@ function editCharger(charger) {
 
 async function deleteCharger(id) {
   if (!confirm('Are you sure you want to delete this charger?')) return
+
+  const token = localStorage.getItem('token')
   try {
     await axios.delete(`${API_BASE_URL}/chargers/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -210,4 +206,4 @@ onMounted(() => {
     font-size: 0.875rem;
   }
 }
-</style>
+</style> ye chargers.vue cahrglist.vue iske bad bhej dunga
