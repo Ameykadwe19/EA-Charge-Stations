@@ -31,11 +31,19 @@ module.exports = (sequelize) => {
     password: {
       type: DataTypes.STRING(255),
       allowNull: false
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'user',
+      validate: {
+        isIn: [['user', 'admin']]
+      }
     }
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'Users', // <-- matches your PG table
+    tableName: 'Users', 
     timestamps: true,
     hooks: {
       beforeCreate: async (user) => {
