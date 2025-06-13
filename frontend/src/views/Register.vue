@@ -64,11 +64,6 @@
           </div>
         </button>
 
-        <div v-if="success" class="alert-success">
-          <i class="fas fa-check-circle"></i>
-          {{ success }}
-        </div>
-
         <div v-if="error" class="alert-error">
           <i class="fas fa-exclamation-circle"></i>
           {{ error }}
@@ -98,13 +93,13 @@ const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
-const success = ref('')
 const showPassword = ref(false)
 const errors = ref({
   email: '',
   password: ''
 })
 
+// Validation functions
 const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!email.value) {
@@ -141,19 +136,16 @@ async function submitRegister() {
 
   loading.value = true
   error.value = ''
-  success.value = ''
-
-   try {
-  await register(email.value, password.value)
-  loading.value = false     
-  router.push({ path: '/login', query: { message: 'Account created successfully!' } })
-} catch (err) {
-  error.value = err.response?.data?.message || 'Registration failed. Please try again.'
-  loading.value = false      
+  
+  try {
+    await register(email.value, password.value)
+    router.push('/login')
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Registration failed. Please try again.'
+  } finally {
+    loading.value = false
+  }
 }
-
-}
-
 </script>
 
 <style scoped>
@@ -305,19 +297,6 @@ async function submitRegister() {
   gap: 0.5rem;
 }
 
-.alert-success {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 8px;
-  color: #059669;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .register-footer {
   text-align: center;
   color: #64748b;
@@ -334,34 +313,5 @@ async function submitRegister() {
 .login-link:hover {
   color: #0052cc;
   text-decoration: underline;
-}
-
-@media (max-width: 640px) {
-  .register-card {
-    padding: 1.25rem;
-  }
-
-  .register-logo {
-    width: 48px;
-    height: 48px;
-  }
-
-  .register-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .form-input {
-    padding: 0.65rem 0.85rem;
-    font-size: 0.85rem;
-  }
-
-  .register-button {
-    padding: 0.75rem;
-    font-size: 0.85rem;
-  }
-
-  .register-footer {
-    font-size: 0.8rem;
-  }
 }
 </style>
