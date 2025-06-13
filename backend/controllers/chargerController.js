@@ -3,9 +3,10 @@ const { Charger } = require('../models');
 // Get all chargers
 exports.getChargers = async (req, res) => {
   try {
-    const where = req.user.role === 'admin' ? {} : { UserId: req.user.id };
-
-    const chargers = await Charger.findAll({ where });
+    // Sirf login user ke chargers laane ke liye
+    const chargers = await Charger.findAll({
+      where: { UserId: req.user.id }
+    });
     res.json(chargers);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching chargers', error: error.message });
@@ -16,16 +17,9 @@ exports.getChargers = async (req, res) => {
 exports.getCharger = async (req, res) => {
   try {
     const charger = await Charger.findByPk(req.params.id);
-
     if (!charger) {
       return res.status(404).json({ message: 'Charger not found' });
     }
-
-    // Only allow access if admin or owner
-    if (req.user.role !== 'admin' && charger.UserId !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to view this charger' });
-    }
-
     res.json(charger);
   } catch (error) {
     console.error('Get charger error:', error);
@@ -33,9 +27,10 @@ exports.getCharger = async (req, res) => {
   }
 };
 
-// Create charger (any logged-in user)
+// Create charger
 exports.createCharger = async (req, res) => {
   try {
+    console.log('Creating charger with data:', { ...req.body, UserId: req.user.id });
     const charger = await Charger.create({
       ...req.body,
       UserId: req.user.id
@@ -49,7 +44,10 @@ exports.createCharger = async (req, res) => {
         errors: error.errors.map(e => e.message)
       });
     }
-    res.status(500).json({ message: 'Error creating charger', error: error.message });
+    res.status(500).json({ 
+      message: 'Error creating charger',
+      error: error.message
+    });
   }
 };
 
@@ -57,13 +55,11 @@ exports.createCharger = async (req, res) => {
 exports.updateCharger = async (req, res) => {
   try {
     const charger = await Charger.findByPk(req.params.id);
-
     if (!charger) {
       return res.status(404).json({ message: 'Charger not found' });
     }
-
-    // Only allow if admin or owner
-    if (req.user.role !== 'admin' && charger.UserId !== req.user.id) {
+    // Only allow if the user owns the charger
+    if (charger.UserId !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to update this charger' });
     }
 
@@ -85,13 +81,12 @@ exports.updateCharger = async (req, res) => {
 exports.deleteCharger = async (req, res) => {
   try {
     const charger = await Charger.findByPk(req.params.id);
-
     if (!charger) {
       return res.status(404).json({ message: 'Charger not found' });
     }
 
-    // Only allow if admin or owner
-    if (req.user.role !== 'admin' && charger.UserId !== req.user.id) {
+    // Check ownership
+    if (charger.UserId !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this charger' });
     }
 
@@ -103,10 +98,10 @@ exports.deleteCharger = async (req, res) => {
   }
 };
 
-// Get nearby chargers (public - only active chargers)
+// Get nearby chargers
 exports.getNearbyChargers = async (req, res) => {
   try {
-    const { latitude, longitude, radius = 10 } = req.query;
+    const { latitude, longitude, radius = 10 } = req.query; // radius in kilometers
 
     const chargers = await Charger.findAll({
       where: {
@@ -114,6 +109,7 @@ exports.getNearbyChargers = async (req, res) => {
       }
     });
 
+    // Filter chargers within radius using Haversine formula
     const nearbyChargers = chargers.filter(charger => {
       const distance = getDistance(
         parseFloat(latitude),
@@ -131,9 +127,9 @@ exports.getNearbyChargers = async (req, res) => {
   }
 };
 
-// Helper functions
+// Helper function to calculate distance using Haversine formula
 function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371;
+  const R = 6371; // Earth's radius in kilometers
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
   const a =
@@ -146,4 +142,4 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 function toRad(value) {
   return (value * Math.PI) / 180;
-}
+} 
