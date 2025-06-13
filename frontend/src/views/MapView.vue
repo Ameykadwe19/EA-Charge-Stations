@@ -25,15 +25,14 @@
             :key="station.id"
             class="station-item"
             :class="{ 'active': selectedStation?.id === station.id }"
-            @click="selectStation(station)"
           >
-            <div class="station-header">
+            <div class="station-header" @click="selectStation(station)">
               <h4>{{ station.name }}</h4>
               <span class="status-badge" :class="station.status">
                 {{ station.status }}
               </span>
             </div>
-            <div class="station-details">
+            <div class="station-details" @click="selectStation(station)">
               <div class="detail-row">
                 <i class="fas fa-bolt"></i>
                 <span>{{ station.powerOutput }} kW</span>
@@ -42,6 +41,12 @@
                 <i class="fas fa-plug"></i>
                 <span>{{ station.connectorType }}</span>
               </div>
+            </div>
+
+            <!-- Admin-only buttons -->
+            <div v-if="userRole === 'admin'" class="admin-actions">
+              <button @click.stop="editStation(station)">Edit</button>
+              <button @click.stop="deleteStation(station.id)">Delete</button>
             </div>
           </div>
         </div>
@@ -68,6 +73,9 @@ L.Icon.Default.mergeOptions({
 })
 
 const token = localStorage.getItem('token')
+const decoded = token ? JSON.parse(atob(token.split('.')[1])) : {}
+const userRole = decoded.role || 'user'
+
 const API_URL = import.meta.env.VITE_API_URL + '/api/chargers'
 
 const stations = ref([])
@@ -102,6 +110,24 @@ const selectStation = (station) => {
       map.invalidateSize()
     }
   })
+}
+
+const editStation = (station) => {
+  console.log('Edit clicked for:', station)
+  // You can add your modal or route logic here
+}
+
+const deleteStation = async (id) => {
+  if (!confirm('Are you sure you want to delete this station?')) return
+  try {
+    await axios.delete(`${API_URL}/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    stations.value = stations.value.filter(s => s.id !== id)
+  } catch (err) {
+    console.error('Delete failed:', err)
+    alert('Failed to delete station')
+  }
 }
 
 onMounted(async () => {
@@ -271,6 +297,27 @@ onMounted(async () => {
 
 .error {
   color: #dc2626;
+}
+
+.admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.admin-actions button {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-actions button:hover {
+  background: #e2e8f0;
 }
 
 /* Responsive Design */
