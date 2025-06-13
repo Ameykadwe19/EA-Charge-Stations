@@ -31,11 +31,18 @@ module.exports = (sequelize) => {
     password: {
       type: DataTypes.STRING(255),
       allowNull: false
+    },
+
+    // ✅ NEW: Role field for admin/user
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: 'user' // All new users will be 'user' by default
     }
+
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'Users', // <-- matches your PG table
+    tableName: 'Users',
     timestamps: true,
     hooks: {
       beforeCreate: async (user) => {
