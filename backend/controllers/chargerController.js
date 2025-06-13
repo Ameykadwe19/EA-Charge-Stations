@@ -3,10 +3,8 @@ const { Charger } = require('../models');
 // Get all chargers
 exports.getChargers = async (req, res) => {
   try {
-    // Sirf login user ke chargers laane ke liye
-    const chargers = await Charger.findAll({
-      where: { UserId: req.user.id }
-    });
+    const where = req.user.role === 'admin' ? {} : { UserId: req.user.id };
+    const chargers = await Charger.findAll({ where });
     res.json(chargers);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching chargers', error: error.message });
@@ -30,21 +28,24 @@ exports.getCharger = async (req, res) => {
 // Create charger
 exports.createCharger = async (req, res) => {
   try {
-    console.log('Creating charger with data:', { ...req.body, UserId: req.user.id });
+    const userIdToAssign = req.user.role === 'admin' ? (req.body.UserId || req.user.id) : req.user.id;
+    console.log('Creating charger with data:', { ...req.body, UserId: userIdToAssign });
+
     const charger = await Charger.create({
       ...req.body,
-      UserId: req.user.id
+      UserId: userIdToAssign
     });
+
     res.status(201).json(charger);
   } catch (error) {
     console.error('Create charger error:', error);
     if (error.name === 'SequelizeValidationError') {
-      return res.status(400).json({ 
-        message: 'Validation error', 
+      return res.status(400).json({
+        message: 'Validation error',
         errors: error.errors.map(e => e.message)
       });
     }
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error creating charger',
       error: error.message
     });
@@ -58,8 +59,9 @@ exports.updateCharger = async (req, res) => {
     if (!charger) {
       return res.status(404).json({ message: 'Charger not found' });
     }
-    // Only allow if the user owns the charger
-    if (charger.UserId !== req.user.id) {
+
+    // Allow only if user is admin OR owns the charger
+    if (req.user.role !== 'admin' && charger.UserId !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to update this charger' });
     }
 
@@ -68,8 +70,8 @@ exports.updateCharger = async (req, res) => {
   } catch (error) {
     console.error('Update charger error:', error);
     if (error.name === 'SequelizeValidationError') {
-      return res.status(400).json({ 
-        message: 'Validation error', 
+      return res.status(400).json({
+        message: 'Validation error',
         errors: error.errors.map(e => e.message)
       });
     }
@@ -85,8 +87,8 @@ exports.deleteCharger = async (req, res) => {
       return res.status(404).json({ message: 'Charger not found' });
     }
 
-    // Check ownership
-    if (charger.UserId !== req.user.id) {
+    // Allow only if user is admin OR owns the charger
+    if (req.user.role !== 'admin' && charger.UserId !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this charger' });
     }
 
