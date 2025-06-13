@@ -2,9 +2,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
+// Updated: Token now includes role
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET || 'your-secret-key',
     { expiresIn: '24h' }
   );
@@ -13,7 +14,7 @@ const generateToken = (user) => {
 exports.register = async (req, res) => {
   try {
     console.log('Registration request body:', req.body);
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     if (!email || !password) {
       console.log('Missing required fields:', { email: !!email, password: !!password });
@@ -21,24 +22,25 @@ exports.register = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ 
+    const existingUser = await User.findOne({
       where: { email },
       attributes: ['id', 'email', 'password']
     });
-    
+
     if (existingUser) {
       console.log('User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
     console.log('Creating new user with email:', email);
-    // Create new user
+    //  Register with optional role (defaults to 'user')
     const user = await User.create({
       email,
-      password
+      password,
+      role: role || 'user'
     });
 
-    console.log('User created successfully:', { id: user.id, email: user.email });
+    console.log('User created successfully:', { id: user.id, email: user.email, role: user.role });
     const token = generateToken(user);
 
     res.status(201).json({
@@ -46,7 +48,8 @@ exports.register = async (req, res) => {
       token,
       user: {
         id: user.id,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
@@ -58,7 +61,7 @@ exports.register = async (req, res) => {
     });
 
     if (error.name === 'SequelizeValidationError') {
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: 'Validation error',
         errors: error.errors.map(e => e.message)
       });
@@ -68,9 +71,9 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error registering user',
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -85,12 +88,12 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Find user
-    const user = await User.findOne({ 
+    // Find user ( Include role here too)
+    const user = await User.findOne({
       where: { email },
-      attributes: ['id', 'email', 'password']
+      attributes: ['id', 'email', 'password', 'role']
     });
-    
+
     if (!user) {
       console.log('User not found:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -103,7 +106,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    console.log('User logged in successfully:', { id: user.id, email: user.email });
+    console.log('User logged in successfully:', { id: user.id, email: user.email, role: user.role });
     const token = generateToken(user);
 
     res.json({
@@ -111,7 +114,8 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user.id,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
@@ -120,9 +124,9 @@ exports.login = async (req, res) => {
       message: error.message,
       stack: error.stack
     });
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error logging in',
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -130,9 +134,9 @@ exports.login = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: ['id', 'email', 'createdAt', 'updatedAt']
+      attributes: ['id', 'email', 'role', 'createdAt', 'updatedAt']
     });
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
