@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
-const isAdmin = require('../middleware/isAdmin'); // <-- Add this line
 const {
   getChargers,
   getCharger,
