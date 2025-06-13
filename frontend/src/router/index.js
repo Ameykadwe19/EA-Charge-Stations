@@ -3,7 +3,8 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import ChargerList from '../views/ChargerList.vue'
 import MapView from '../views/MapView.vue'
-import jwtDecode from 'jwt-decode'  // ✅ Decode JWT to extract role
+import { jwtDecode } from 'jwt-decode'
+
 
 const routes = [
   {
