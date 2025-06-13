@@ -6,10 +6,6 @@
 
 ## 🌐 Live Demo
 
-🌐 Frontend (Vercel): [ea-charge-stations.vercel.app](https://ea-charge-stations.vercel.app)
-
-OR
-
 🌐 Frontend (Render Static): [ea-charge-stations-staticweb.onrender.com](https://ea-charge-stations-staticweb.onrender.com)
 
 🔌 Backend API (Render): [ea-charge-stations-kaw0.onrender.com](https://ea-charge-stations-kaw0.onrender.com)
