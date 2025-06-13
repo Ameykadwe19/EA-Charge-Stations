@@ -6,16 +6,12 @@ const {
   getCharger,
   createCharger,
   updateCharger,
-  deleteCharger,
-  getAllChargersForAdmin 
+  deleteCharger
 } = require('../controllers/chargerController');
 
-router.use(protect); // All routes below need login
+// Protected routes (need authentication but no specific role)
+router.use(protect);  // All routes below this will require authentication
 
-//  Admin-only route to get all chargers
-router.get('/admin/all', isAdmin, getAllChargersForAdmin);  
-
-// User routes
 router.route('/')
   .get(getChargers)
   .post(createCharger);
@@ -25,4 +21,4 @@ router.route('/:id')
   .put(updateCharger)
   .delete(deleteCharger);
 
-module.exports = router;
+module.exports = router; 
