@@ -1,11 +1,19 @@
 import axios from 'axios'
+import jwt_decode from 'jwt-decode' // needed for decoding
 
 const API_URL = import.meta.env.VITE_API_URL
 
 export function useAuth() {
   const login = async (email, password) => {
     const res = await axios.post(`${API_URL}/api/auth/login`, { email, password })
-    localStorage.setItem('token', res.data.token)
+
+    const token = res.data.token
+    localStorage.setItem('token', token)
+
+    const decoded = jwt_decode(token)
+    localStorage.setItem('role', decoded.role) // store role separately for UI
+
+    return decoded.role // so Login.vue can redirect based on it
   }
 
   const register = async (email, password) => {
@@ -15,6 +23,7 @@ export function useAuth() {
 
   const logout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('role')
   }
 
   const getToken = () => localStorage.getItem('token')
