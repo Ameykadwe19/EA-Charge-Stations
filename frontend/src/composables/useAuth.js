@@ -1,5 +1,5 @@
 import axios from 'axios'
-import jwt_decode from 'jwt-decode' // needed for decoding
+import { default as jwt_decode } from 'jwt-decode'
 
 const API_URL = import.meta.env.VITE_API_URL
 
