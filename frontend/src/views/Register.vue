@@ -314,4 +314,4 @@ async function submitRegister() {
   color: #0052cc;
   text-decoration: underline;
 }
-</style>
+</style> 
