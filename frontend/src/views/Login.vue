@@ -145,15 +145,26 @@ async function submitLogin() {
   error.value = ''
   
   try {
-    await login(email.value, password.value)
-    router.push('/chargers')
+    const response = await login(email.value, password.value)
+    const token = response.token || response.data?.token
+
+    if (token) {
+      localStorage.setItem('token', token)
+
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const role = payload.role
+      localStorage.setItem('role', role)
+
+      router.push('/chargers')
+    } else {
+      error.value = 'Login failed: No token received'
+    }
   } catch (err) {
     error.value = err.response?.data?.message || 'Invalid email or password'
   } finally {
     loading.value = false
   }
 }
-
 
 onMounted(() => {
   if (route.query.message) {
