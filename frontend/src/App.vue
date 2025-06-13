@@ -9,10 +9,18 @@
 
       <!-- Desktop Nav Links -->
       <div class="nav-links">
-        <router-link to="/chargers" class="nav-link">
+        <router-link
+          v-if="currentPath !== '/chargers'"
+          to="/chargers"
+          class="nav-link"
+        >
           <i class="fas fa-list"></i> List View
         </router-link>
-        <router-link to="/map" class="nav-link">
+        <router-link
+          v-if="currentPath !== '/map'"
+          to="/map"
+          class="nav-link"
+        >
           <i class="fas fa-map-marked-alt"></i> Map View
         </router-link>
         <button @click="handleLogout" class="logout-btn">
@@ -64,11 +72,29 @@ const router = useRouter()
 const route = useRoute()
 
 const token = ref(localStorage.getItem('token'))
+const role = ref(null)
 const showMobileMenu = ref(false)
 
 const isLoggedIn = computed(() => token.value && route.path !== '/login' && route.path !== '/register')
 const currentPath = computed(() => route.path)
 const isMobile = computed(() => window.innerWidth <= 768)
+
+const parseToken = () => {
+  const rawToken = localStorage.getItem('token')
+  token.value = rawToken
+
+  if (rawToken) {
+    try {
+      const base64Payload = rawToken.split('.')[1]
+      const decodedPayload = JSON.parse(atob(base64Payload))
+      role.value = decodedPayload.role
+    } catch (e) {
+      role.value = null
+    }
+  } else {
+    role.value = null
+  }
+}
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
@@ -77,29 +103,23 @@ const toggleMobileMenu = () => {
 const handleLogout = () => {
   localStorage.removeItem('token')
   token.value = null
+  role.value = null
   showMobileMenu.value = false
   router.push('/login')
 }
 
 watch(route, () => {
-  token.value = localStorage.getItem('token')
+  parseToken()
   showMobileMenu.value = false
 })
 
 onMounted(() => {
-  token.value = localStorage.getItem('token')
-
-  // Close menu on outside click
+  parseToken()
   document.addEventListener('click', (e) => {
     const menu = document.querySelector('.mobile-menu')
     const button = document.querySelector('.hamburger')
 
-    if (
-      menu &&
-      !menu.contains(e.target) &&
-      button &&
-      !button.contains(e.target)
-    ) {
+    if (menu && !menu.contains(e.target) && button && !button.contains(e.target)) {
       showMobileMenu.value = false
     }
   })
@@ -226,7 +246,6 @@ main.with-nav {
   display: none;
   margin-left: auto;
 }
-
 
 .mobile-menu {
   position: fixed; 
