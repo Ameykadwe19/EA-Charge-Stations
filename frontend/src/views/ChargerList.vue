@@ -198,6 +198,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import jwt_decode from 'jwt-decode'
 
 const router = useRouter()
 const chargers = ref([])
@@ -225,20 +226,35 @@ const chargerForm = ref({
 
 const API_URL = import.meta.env.VITE_API_URL + '/api'
 
+// Decode JWT to get user + role
+const token = localStorage.getItem('token')
+let currentUser = null
+let isAdmin = false
 
-// Fetch chargers
+if (token) {
+  try {
+    const decoded = jwt_decode(token)
+    currentUser = decoded
+    isAdmin = decoded.role === 'admin'
+  } catch (e) {
+    console.error('JWT decode error:', e)
+  }
+}
+
+// Fetch chargers (admin → all, user → own)
 const fetchChargers = async () => {
   loading.value = true
   error.value = null
-  
+
   try {
-    console.log('Fetching chargers...')
-    const response = await axios.get(`${API_URL}/chargers`, {
-      headers: { 
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+    const url = isAdmin 
+      ? `${API_URL}/chargers/all`
+      : `${API_URL}/chargers`
+
+    const response = await axios.get(url, {
+      headers: { Authorization: `Bearer ${token}` }
     })
-    console.log('Fetched chargers:', response.data)
+
     chargers.value = response.data
   } catch (err) {
     console.error('Error fetching chargers:', err)
@@ -270,12 +286,12 @@ const filteredChargers = computed(() => {
   })
 })
 
-// Format location
+// Format lat/lng
 const formatLocation = (charger) => {
   return `${charger.latitude.toFixed(6)}, ${charger.longitude.toFixed(6)}`
 }
 
-// Modal handlers
+// Open Add
 const openAddModal = () => {
   editingCharger.value = null
   chargerForm.value = {
@@ -289,48 +305,47 @@ const openAddModal = () => {
   showModal.value = true
 }
 
+// Open Edit
 const editCharger = (charger) => {
   editingCharger.value = charger
   chargerForm.value = { ...charger }
   showModal.value = true
 }
 
+// Close modal
 const closeModal = () => {
   showModal.value = false
   editingCharger.value = null
 }
 
+// Validation
 const validateForm = () => {
   const errors = []
-  
+
   if (!chargerForm.value.name?.trim()) {
     errors.push('Name is required')
   }
-  
   if (!chargerForm.value.latitude || isNaN(chargerForm.value.latitude)) {
     errors.push('Valid latitude is required')
   } else if (chargerForm.value.latitude < -90 || chargerForm.value.latitude > 90) {
     errors.push('Latitude must be between -90 and 90')
   }
-  
   if (!chargerForm.value.longitude || isNaN(chargerForm.value.longitude)) {
     errors.push('Valid longitude is required')
   } else if (chargerForm.value.longitude < -180 || chargerForm.value.longitude > 180) {
     errors.push('Longitude must be between -180 and 180')
   }
-  
   if (!chargerForm.value.powerOutput || chargerForm.value.powerOutput <= 0) {
     errors.push('Power output must be greater than 0')
   }
-  
   if (!chargerForm.value.connectorType) {
     errors.push('Connector type is required')
   }
-  
+
   return errors
 }
 
-// Save charger
+// Save new / update existing
 const saveCharger = async () => {
   const errors = validateForm()
   if (errors.length > 0) {
@@ -340,18 +355,16 @@ const saveCharger = async () => {
 
   saving.value = true
   try {
-    console.log('Saving charger:', chargerForm.value)
     const url = `${API_URL}/chargers${editingCharger.value ? `/${editingCharger.value.id}` : ''}`
     const method = editingCharger.value ? 'put' : 'post'
-    
+
     const response = await axios[method](url, chargerForm.value, {
       headers: { 
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     })
-    
-    console.log('Server response:', response.data)
+
     await fetchChargers()
     closeModal()
   } catch (error) {
@@ -367,15 +380,13 @@ const saveCharger = async () => {
   }
 }
 
-// Delete charger
+// Delete
 const confirmDelete = async (charger) => {
   if (!confirm(`Are you sure you want to delete ${charger.name}?`)) return
-  
+
   try {
     await axios.delete(`${API_URL}/chargers/${charger.id}`, {
-      headers: { 
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     })
     await fetchChargers()
   } catch (error) {
@@ -391,6 +402,7 @@ const confirmDelete = async (charger) => {
 
 onMounted(fetchChargers)
 </script>
+
 
 <style scoped>
 .charger-list {
