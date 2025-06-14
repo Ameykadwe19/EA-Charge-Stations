@@ -198,7 +198,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import jwt_decode from 'jwt-decode'
+import { jwtDecode } from "jwt-decode";
+
 
 const router = useRouter()
 const chargers = ref([])
@@ -233,7 +234,7 @@ let isAdmin = false
 
 if (token) {
   try {
-    const decoded = jwt_decode(token)
+    const decoded = jwtDecode(token)
     currentUser = decoded
     isAdmin = decoded.role === 'admin'
   } catch (e) {
