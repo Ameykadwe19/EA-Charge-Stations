@@ -1,5 +1,5 @@
 import axios from 'axios'
-import jwt_decode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -8,7 +8,7 @@ export function useAuth() {
     const res = await axios.post(`${API_URL}/api/auth/login`, { email, password })
     localStorage.setItem('token', res.data.token)
     // Decode and store role (optional)
-    const decoded = jwt_decode(res.data.token)
+    const decoded = jwtDecode(res.data.token)
     localStorage.setItem('user', JSON.stringify(decoded))
   }
 
