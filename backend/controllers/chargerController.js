@@ -21,21 +21,25 @@ exports.getChargers = async (req, res) => {
 };
 
 // Get single charger by ID
-exports.getChargers = async (req, res) => {
+exports.getCharger = async (req, res) => {
   try {
-    const { id, role } = req.user;
+    const charger = await Charger.findByPk(req.params.id);
 
-    const whereClause = role === 'admin' ? {} : { UserId: id };
+    if (!charger) {
+      return res.status(404).json({ message: 'Charger not found' });
+    }
 
-    const chargers = await Charger.findAll({ where: whereClause });
+    // Only owner or admin can access
+    if (req.user.role !== 'admin' && charger.UserId !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
 
-    res.json(chargers);
+    res.json(charger);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error fetching chargers' });
+    console.error('Fetch single charger error:', error);
+    res.status(500).json({ message: 'Error fetching charger' });
   }
 };
-
 
 // Create a new charger
 exports.createCharger = async (req, res) => {
