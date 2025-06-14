@@ -270,19 +270,24 @@ const fetchChargers = async () => {
   }
 }
 
-// === Filters ===
+// === Filters (includes role-based filtering now) ===
 const filteredChargers = computed(() => {
-  return chargers.value.filter(charger => {
-    const matchesSearch = !filters.value.search || 
-      charger.name.toLowerCase().includes(filters.value.search.toLowerCase())
-    const matchesStatus = !filters.value.status || 
-      charger.status === filters.value.status
-    const matchesType = !filters.value.connectorType || 
-      charger.connectorType === filters.value.connectorType
-    const matchesPower = !filters.value.minPower || 
-      charger.powerOutput >= filters.value.minPower
-    return matchesSearch && matchesStatus && matchesType && matchesPower
-  })
+  return chargers.value
+    .filter(charger => {
+      if (isAdmin) return true
+      return charger.userId === currentUser.userId
+    })
+    .filter(charger => {
+      const matchesSearch = !filters.value.search || 
+        charger.name.toLowerCase().includes(filters.value.search.toLowerCase())
+      const matchesStatus = !filters.value.status || 
+        charger.status === filters.value.status
+      const matchesType = !filters.value.connectorType || 
+        charger.connectorType === filters.value.connectorType
+      const matchesPower = !filters.value.minPower || 
+        charger.powerOutput >= filters.value.minPower
+      return matchesSearch && matchesStatus && matchesType && matchesPower
+    })
 })
 
 // === Format Lat/Lng ===
