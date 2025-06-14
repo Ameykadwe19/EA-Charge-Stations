@@ -206,4 +206,4 @@ onMounted(() => {
     font-size: 0.875rem;
   }
 }
-</style> ye chargers.vue cahrglist.vue iske bad bhej dunga
+</style> 
