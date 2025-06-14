@@ -1,5 +1,5 @@
 const { protect, authorize } = require('../middleware/auth');
-
+const router = express.Router();
 router.use(protect);  // All routes need login
 
 router.route('/')
