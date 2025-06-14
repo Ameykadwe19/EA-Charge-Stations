@@ -57,6 +57,7 @@
 import { ref, onMounted, computed } from 'vue'
 import L from 'leaflet'
 import axios from 'axios'
+import jwtDecode from 'jwt-decode'
 
 import 'leaflet/dist/leaflet.css'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
@@ -67,7 +68,11 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow
 })
 
+// === JWT Decode ===
 const token = localStorage.getItem('token')
+const user = token ? jwtDecode(token) : null
+const isAdmin = user?.role === 'admin'
+
 const API_URL = import.meta.env.VITE_API_URL + '/api/chargers'
 
 const stations = ref([])
@@ -290,4 +295,4 @@ onMounted(async () => {
     min-height: 400px;
   }
 }
-</style> mapview.vue
+</style>
