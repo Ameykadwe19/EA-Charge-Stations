@@ -1,24 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const { protect } = require('../middleware/auth');
-const {
-  getChargers,
-  getCharger,
-  createCharger,
-  updateCharger,
-  deleteCharger
-} = require('../controllers/chargerController');
+const { protect, authorize } = require('../middleware/auth');
 
-// Protected routes (need authentication but no specific role)
-router.use(protect);  // All routes below this will require authentication
+router.use(protect);  // All routes need login
 
 router.route('/')
   .get(getChargers)
-  .post(createCharger);
+  .post(createCharger); // All users can create
 
 router.route('/:id')
   .get(getCharger)
   .put(updateCharger)
-  .delete(deleteCharger);
+  .delete(deleteCharger); // We’ll restrict in controller (based on role + ownership)
 
-module.exports = router; 
