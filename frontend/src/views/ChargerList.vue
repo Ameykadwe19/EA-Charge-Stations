@@ -200,8 +200,8 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { jwtDecode } from "jwt-decode";
 
-
 const router = useRouter()
+
 const chargers = ref([])
 const loading = ref(true)
 const error = ref(null)
@@ -227,7 +227,7 @@ const chargerForm = ref({
 
 const API_URL = import.meta.env.VITE_API_URL + '/api'
 
-// Decode JWT to get user + role
+// === JWT Decode for User Role ===
 const token = localStorage.getItem('token')
 let currentUser = null
 let isAdmin = false
@@ -242,15 +242,13 @@ if (token) {
   }
 }
 
-// Fetch chargers (admin → all, user → own)
+// === Fetch Chargers (same endpoint for both admin and user) ===
 const fetchChargers = async () => {
   loading.value = true
   error.value = null
 
   try {
-    const url = isAdmin 
-      ? `${API_URL}/chargers/all`
-      : `${API_URL}/chargers`
+    const url = `${API_URL}/chargers`
 
     const response = await axios.get(url, {
       headers: { Authorization: `Bearer ${token}` }
@@ -272,7 +270,7 @@ const fetchChargers = async () => {
   }
 }
 
-// Filter chargers
+// === Filters ===
 const filteredChargers = computed(() => {
   return chargers.value.filter(charger => {
     const matchesSearch = !filters.value.search || 
@@ -287,12 +285,12 @@ const filteredChargers = computed(() => {
   })
 })
 
-// Format lat/lng
+// === Format Lat/Lng ===
 const formatLocation = (charger) => {
   return `${charger.latitude.toFixed(6)}, ${charger.longitude.toFixed(6)}`
 }
 
-// Open Add
+// === Open Modal for Add ===
 const openAddModal = () => {
   editingCharger.value = null
   chargerForm.value = {
@@ -306,20 +304,20 @@ const openAddModal = () => {
   showModal.value = true
 }
 
-// Open Edit
+// === Open Modal for Edit ===
 const editCharger = (charger) => {
   editingCharger.value = charger
   chargerForm.value = { ...charger }
   showModal.value = true
 }
 
-// Close modal
+// === Close Modal ===
 const closeModal = () => {
   showModal.value = false
   editingCharger.value = null
 }
 
-// Validation
+// === Validation ===
 const validateForm = () => {
   const errors = []
 
@@ -346,7 +344,7 @@ const validateForm = () => {
   return errors
 }
 
-// Save new / update existing
+// === Save Charger (Add or Update) ===
 const saveCharger = async () => {
   const errors = validateForm()
   if (errors.length > 0) {
@@ -359,7 +357,7 @@ const saveCharger = async () => {
     const url = `${API_URL}/chargers${editingCharger.value ? `/${editingCharger.value.id}` : ''}`
     const method = editingCharger.value ? 'put' : 'post'
 
-    const response = await axios[method](url, chargerForm.value, {
+    await axios[method](url, chargerForm.value, {
       headers: { 
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -381,7 +379,7 @@ const saveCharger = async () => {
   }
 }
 
-// Delete
+// === Delete Charger ===
 const confirmDelete = async (charger) => {
   if (!confirm(`Are you sure you want to delete ${charger.name}?`)) return
 
@@ -403,6 +401,7 @@ const confirmDelete = async (charger) => {
 
 onMounted(fetchChargers)
 </script>
+
 
 
 <style scoped>
