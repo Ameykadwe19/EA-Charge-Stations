@@ -60,7 +60,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import jwtDecode from 'jwt-decode' //  decode token
+import { jwtDecode } from 'jwt-decode'
 
 const router = useRouter()
 const route = useRoute()
