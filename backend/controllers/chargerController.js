@@ -1,4 +1,4 @@
-const { Charger } = require('../models'); d
+const { Charger } = require('../models'); 
 
 // Get all chargers
 exports.getChargers = async (req, res) => {
