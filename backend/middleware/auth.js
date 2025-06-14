@@ -16,14 +16,20 @@ exports.protect = async (req, res, next) => {
     // 2. Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
 
-    // 3. Get user from token
+    // 3. Get user from DB
     const user = await User.findByPk(decoded.id);
+
     if (!user) {
       return res.status(401).json({ message: 'User no longer exists' });
     }
 
-    // Add user to request
-    req.user = user;
+    // 4. Attach minimal user info to request
+    req.user = {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    };
+
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
@@ -31,6 +37,7 @@ exports.protect = async (req, res, next) => {
   }
 };
 
+// Role-based authorization middleware
 exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
