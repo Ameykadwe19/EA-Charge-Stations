@@ -5,6 +5,7 @@
       <div class="nav-brand">
         <img src="@/assets/logo.svg" alt="Logo" class="nav-logo" />
         <span>Charging Station</span>
+        <span v-if="userRole === 'admin'" class="admin-label">Admin</span>
       </div>
 
       <!-- Desktop Nav Links -->
@@ -59,11 +60,13 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import jwtDecode from 'jwt-decode' //  decode token
 
 const router = useRouter()
 const route = useRoute()
 
 const token = ref(localStorage.getItem('token'))
+const userRole = ref(null) //  to store decoded role
 const showMobileMenu = ref(false)
 
 const isLoggedIn = computed(() => token.value && route.path !== '/login' && route.path !== '/register')
@@ -84,10 +87,12 @@ const handleLogout = () => {
 watch(route, () => {
   token.value = localStorage.getItem('token')
   showMobileMenu.value = false
+  decodeRole()
 })
 
 onMounted(() => {
   token.value = localStorage.getItem('token')
+  decodeRole()
 
   // Close menu on outside click
   document.addEventListener('click', (e) => {
@@ -104,6 +109,16 @@ onMounted(() => {
     }
   })
 })
+
+//  Decode JWT role
+const decodeRole = () => {
+  try {
+    const decoded = jwtDecode(token.value)
+    userRole.value = decoded?.role
+  } catch (err) {
+    userRole.value = null
+  }
+}
 </script>
 
 <style>
@@ -292,5 +307,16 @@ main.with-nav {
   main.with-nav {
     padding-top: 120px;
   }
+}
+
+/*  Admin label */
+.admin-label {
+  margin-left: 1rem;
+  background-color: #10b981;
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 </style>
