@@ -57,7 +57,8 @@
 import { ref, onMounted, computed } from 'vue'
 import L from 'leaflet'
 import axios from 'axios'
-import jwtDecode from 'jwt-decode'
+import { jwtDecode } from "jwt-decode";
+
 
 import 'leaflet/dist/leaflet.css'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
