@@ -1,9 +1,13 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-<p v-if="successMessage" class="text-green-700 bg-green-100 border border-green-300 rounded-md px-4 py-2 mb-3 text-sm text-center shadow-sm">
-    ✅ Account created successfully! Please log in.
-  </p>
+<p 
+  v-if="successMessage" 
+  class="text-green-700 bg-green-100 border border-green-300 rounded-md px-4 py-2 mb-3 text-sm text-center shadow-sm"
+>
+  ✅ Account created successfully! Please log in.
+</p>
+
       <div class="login-header">
         <img src="@/assets/logo.svg" alt="Logo" class="login-logo">
         <h1>Welcome Back</h1>
