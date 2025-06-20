@@ -1,6 +1,9 @@
 <template>
   <div class="login-container">
     <div class="login-card">
+      <p v-if="successMessage" class="text-green-600 bg-green-100 border border-green-300 rounded p-2 mb-4 text-center">
+  ✅ Account created successfully! Please log in.
+</p>
       <div class="login-header">
         <img src="@/assets/logo.svg" alt="Logo" class="login-logo">
         <h1>Welcome Back</h1>
@@ -83,9 +86,11 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 
+  
+const successMessage = route.query.success === '1'  
 const router = useRouter()
 const { login } = useAuth()
 
