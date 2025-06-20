@@ -139,7 +139,7 @@ async function submitRegister() {
   
   try {
     await register(email.value, password.value)
-    router.push('/login')
+    router.push({ path: '/login', query: { success: '1' } })
   } catch (err) {
     error.value = err.response?.data?.message || 'Registration failed. Please try again.'
   } finally {
