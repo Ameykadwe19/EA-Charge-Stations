@@ -89,14 +89,24 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 
-const route = useRoute() 
-const successMessage = route.query.success === '1'  
 const router = useRouter()
+const route = useRoute()
 const { login } = useAuth()
+
+const successMessage = ref(false)
+
+onMounted(() => {
+  if (route.query.success === '1') {
+    successMessage.value = true
+    setTimeout(() => {
+      successMessage.value = false
+    }, 3000)
+  }
+})
 
 const email = ref('')
 const password = ref('')
